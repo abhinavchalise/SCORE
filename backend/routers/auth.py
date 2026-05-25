@@ -36,7 +36,7 @@ def create_access_token(data: dict) -> str:
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
 ) -> User:
-    # Decode JWT and return user, raises 401 on any failure
+    """Decode the JWT and return the user; raises 401 on any failure."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or expired token",
@@ -57,7 +57,8 @@ async def get_current_user(
 
 
 @router.post("/register", response_model=APIResponse)
-async def register(req: UserCreate, db: AsyncSession = Depends(get_db)):
+async def register(req: UserCreate, db: AsyncSession = Depends(get_db)) -> APIResponse:
+    """Register a new user and return an access token."""
     if await UserQueries.get_by_email(db, req.email):
         raise HTTPException(status_code=409, detail="Email already registered")
 
@@ -86,7 +87,8 @@ async def register(req: UserCreate, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("/login", response_model=APIResponse)
-async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
+async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)) -> APIResponse:
+    """Authenticate by email and password and return an access token."""
     user = await UserQueries.get_by_email(db, req.email)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -109,7 +111,8 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/me", response_model=APIResponse)
-async def me(current_user: User = Depends(get_current_user)):
+async def me(current_user: User = Depends(get_current_user)) -> APIResponse:
+    """Return the authenticated user's profile."""
     return APIResponse(
         success=True,
         message="Current user",

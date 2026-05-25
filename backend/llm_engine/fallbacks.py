@@ -107,7 +107,7 @@ FALLBACK_SCHEDULES = {
 
 
 def get_fallback_schedule(intent: str, duration_minutes: int = 25) -> ModulationSchedule:
-    # Return a safe hardcoded schedule, maps intent keywords to known schedules
+    """Return a safe hardcoded schedule by matching intent keywords."""
     intent_lower = intent.lower()
     for key in FALLBACK_SCHEDULES:
         if key in intent_lower:

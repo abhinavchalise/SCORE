@@ -15,14 +15,6 @@ class NeurotypeEnum(str, Enum):
     OTHER = "Other"
 
 
-class AudioTypeEnum(str, Enum):
-    BINAURAL = "binaural"
-    ISOCHRONIC = "isochronic"
-    WHITE_NOISE = "white_noise"
-    NATURE = "nature"
-    AMBIENT = "ambient"
-
-
 # Response Schema
 class APIResponse(BaseModel):
     success: bool
@@ -63,26 +55,6 @@ class UserPreferencesUpdate(BaseModel):
     neurotype: Optional[NeurotypeEnum] = None
     volume_preference: Optional[float] = Field(None, ge=0.0, le=1.0)
     sensory_preferences: Optional[List[str]] = None
-
-
-# Audio Track Schemas
-class AudioTrackBase(BaseModel):
-    name: str = Field(..., max_length=100)
-    audio_type: AudioTypeEnum
-    duration: float = Field(..., ge=1)
-    frequency: Optional[float] = Field(None, ge=0, le=1000)
-    bpm: Optional[float] = Field(None, ge=20, le=200)
-
-
-class AudioTrackResponse(AudioTrackBase):
-    id: int
-    file_path: str
-    tags: Optional[List[str]] = None
-    created_at: datetime
-    activity: bool
-
-    class Config:
-        from_attributes = True
 
 
 # LLM schemas
@@ -169,21 +141,6 @@ class LibraryQueryParams(BaseModel):
     bpm_max: Optional[float] = Field(None, ge=20, le=300)
     format: Optional[str] = None
     limit: int = Field(50, ge=1, le=200)
-
-
-# Prompt schema
-class PromptResponse(BaseModel):
-    id: int
-    name: str
-    template: str
-    model: str
-    version: int
-    is_active: bool
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
 
 
 # Standalone LLM request schema

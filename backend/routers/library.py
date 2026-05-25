@@ -23,8 +23,10 @@ MEDIA_TYPES = {
 
 
 @router.post("/scan", response_model=APIResponse)
-async def scan_library(req: LibraryScanRequest, db: AsyncSession = Depends(get_db)):
-    # Scan a directory for audio files and analyze them with librosa
+async def scan_library(
+    req: LibraryScanRequest, db: AsyncSession = Depends(get_db)
+) -> APIResponse:
+    """Scan a directory, analyze new audio files, and catalog them."""
     loop = asyncio.get_running_loop()
 
     try:
@@ -71,7 +73,8 @@ async def list_library(
     format: Optional[str] = Query(None),
     limit: int = Query(50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
-):
+) -> APIResponse:
+    """List catalogued tracks, optionally filtered by BPM and format."""
     tracks = await LibraryQueries.list_tracks(
         db, bpm_min=bpm_min, bpm_max=bpm_max, format=format, limit=limit
     )
@@ -97,7 +100,8 @@ async def list_library(
 
 
 @router.get("/{track_id}/stream")
-async def stream_track(track_id: int, db: AsyncSession = Depends(get_db)):
+async def stream_track(track_id: int, db: AsyncSession = Depends(get_db)) -> FileResponse:
+    """Stream a catalogued audio file by id."""
     track = await LibraryQueries.get_by_id(db, track_id)
     if not track:
         raise HTTPException(status_code=404, detail="Track not found")

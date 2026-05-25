@@ -2,7 +2,7 @@ import logging
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
@@ -12,6 +12,8 @@ from backend.config import settings
 from backend.db.database import get_db, init_db
 from backend.llm_engine.client import llm_engine
 from backend.models.schemas import APIResponse
+from backend.routers.auth import router as auth_router
+from backend.routers.library import router as library_router
 from backend.routers.sessions import router as sessions_router
 
 logging.basicConfig(
@@ -55,11 +57,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
+app.include_router(library_router)
 app.include_router(sessions_router)
 
 
 @app.get("/", response_model=APIResponse)
-async def root():
+async def root() -> APIResponse:
+    """Basic liveness check."""
     return APIResponse(
         success=True,
         message="API running",
@@ -68,7 +73,8 @@ async def root():
 
 
 @app.get("/health", response_model=APIResponse)
-async def health_check(db: AsyncSession = Depends(get_db)):
+async def health_check(db: AsyncSession = Depends(get_db)) -> APIResponse:
+    """Report API and database health."""
     try:
         await db.execute(text("SELECT 1"))
         db_status = "connected"
@@ -83,7 +89,7 @@ async def health_check(db: AsyncSession = Depends(get_db)):
 
 
 @app.exception_handler(404)
-async def not_found_handler(request, exc):
+async def not_found_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
         status_code=404,
         content={
@@ -95,7 +101,7 @@ async def not_found_handler(request, exc):
 
 
 @app.exception_handler(500)
-async def internal_server_error_handler(request, exc):
+async def internal_server_error_handler(request: Request, exc: Exception) -> JSONResponse:
     return JSONResponse(
         status_code=500,
         content={"success": False, "error": "Internal server error", "details": "Server errored"},

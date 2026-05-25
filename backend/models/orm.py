@@ -6,8 +6,9 @@ class Base(DeclarativeBase):
     pass
 
 
-# A registered user and their neurodiversity preferences
 class User(Base):
+    """A registered user and their neurodiversity preferences."""
+
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, index=True, nullable=False)
@@ -25,28 +26,9 @@ class User(Base):
         return f"<User(username={self.username}, email={self.email}, neurotype={self.neurotype})>"
 
 
-# A catalogued audio asset
-class AudioTrack(Base):
-    __tablename__ = "audio"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)
-    file_path = Column(String(500), nullable=False)
-    audio_type = Column(String(50), nullable=False)
-
-    duration = Column(Float, nullable=False)
-    frequency = Column(Float, nullable=False)
-    bpm = Column(Float, nullable=True)
-
-    tags = Column(Text, nullable=True)
-    created_at = Column(DateTime, server_default=func.now())
-    activity = Column(Boolean, nullable=True)
-
-    def __repr__(self):
-        return f"<AudioTrack(name={self.name}, type={self.audio_type}, duration={self.duration}s)>"
-
-
-# An LLM-generated audio session and its feedback
 class Session(Base):
+    """An LLM-generated audio session and its feedback."""
+
     __tablename__ = "sessions"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, nullable=True)  # nullable for MVP (no auth)
@@ -62,8 +44,9 @@ class Session(Base):
         return f"<Session(intent={self.intent}, duration={self.duration_sec}s)>"
 
 
-# Metadata for a user-uploaded audio file
 class Library(Base):
+    """Metadata for a user-uploaded audio file."""
+
     __tablename__ = "library"
     id = Column(Integer, primary_key=True, index=True)
     file_path = Column(String(512), unique=True, nullable=False)
@@ -78,19 +61,3 @@ class Library(Base):
 
     def __repr__(self):
         return f"<Library(filename={self.filename}, bpm={self.bpm})>"
-
-
-# A versioned LLM prompt template
-class Prompt(Base):
-    __tablename__ = "prompts"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), unique=True, nullable=False)
-    template = Column(Text, nullable=False)
-    model = Column(String(100), default="deepseek-ai/DeepSeek-R1-Distill-Llama-8B")
-    version = Column(Integer, default=1)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, server_default=func.now())
-    updated_at = Column(DateTime, server_default=func.now())
-
-    def __repr__(self):
-        return f"<Prompt(name={self.name}, version={self.version})>"

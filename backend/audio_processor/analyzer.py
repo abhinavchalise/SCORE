@@ -9,7 +9,7 @@ PITCH_CLASSES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
 
 
 def analyze_track(file_path: str) -> dict:
-    # Nullable fields so a track still catalogs when analysis fails
+    """Extract duration, BPM, and key; fields are null when analysis fails."""
     import librosa
 
     try:
