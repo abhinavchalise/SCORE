@@ -1,26 +1,30 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+import logging
 from typing import AsyncGenerator
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from backend.config import settings
 from backend.models.orm import Base
 
-#async database engine and session maker
+logger = logging.getLogger(__name__)
+
 engine = create_async_engine(settings.database_url, echo=settings.debug)
 async_session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
-#database dependency session management
+
+# Commit on success, roll back on error
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_factory() as session:
         try:
             yield session
             await session.commit()
         except Exception:
+            logger.exception("Session error, rolling back")
             await session.rollback()
         finally:
             await session.close()
 
-#initializing the database
+
 async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-    print("DB initialized")

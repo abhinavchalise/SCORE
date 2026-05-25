@@ -1,15 +1,19 @@
 import asyncio
 import json
+import logging
 import time
+
 import torch
 from pydantic import ValidationError
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 from backend.config import settings
-from backend.models.schemas import ModulationSchedule
-from backend.llm_engine.prompts import build_schedule_prompt
 from backend.llm_engine.fallbacks import get_fallback_schedule
+from backend.llm_engine.prompts import build_schedule_prompt
 from backend.llm_engine.validator import parse_llm_response
+from backend.models.schemas import ModulationSchedule
+
+logger = logging.getLogger(__name__)
 
 MAX_RETRIES = 2
 
@@ -20,18 +24,18 @@ class LLMEngine:
         self.tokenizer = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
-    # initially loading in async to avoid blocking startup
+    # Load off the event loop so startup isn't blocked
     async def load(self):
-        print(f"Loading {settings.hf_model_id} on {self.device}...")
+        logger.info("Loading %s on %s", settings.hf_model_id, self.device)
         start = time.time()
 
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, self._load_model)
 
         elapsed = time.time() - start
-        print(f"Model loaded in {elapsed:.1f}s on {self.device}")
+        logger.info("Model loaded in %.1fs on %s", elapsed, self.device)
 
-    # models loaded in synchronous threads 
+    # Synchronous load; runs inside an executor thread
     def _load_model(self):
         self.tokenizer = AutoTokenizer.from_pretrained(settings.hf_model_id)
 
@@ -45,7 +49,7 @@ class LLMEngine:
 
         self.model = AutoModelForCausalLM.from_pretrained(settings.hf_model_id, **model_kwargs)
 
-# Quen Schedule
+    # Retry on malformed output, fall back to a safe schedule if all retries fail
     def generate_schedule(self, intent: str, duration_minutes: int = 25) -> ModulationSchedule:
         prompt = build_schedule_prompt(intent, duration_minutes)
 
@@ -67,23 +71,23 @@ class LLMEngine:
                     do_sample=True,
                 )
             inference_time = time.time() - start
-            print(f"LLM inference took {inference_time:.2f}s (attempt {attempt + 1})")
+            logger.info("LLM inference took %.2fs (attempt %d)", inference_time, attempt + 1)
 
-            # skipping input tokens to get only the new output tokens
-            new_tokens = outputs[0][inputs["input_ids"].shape[1]:]
+            # Drop the prompt tokens, keep only what was generated
+            new_tokens = outputs[0][inputs["input_ids"].shape[1] :]
             raw_output = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
 
             try:
                 return parse_llm_response(raw_output)
             except json.JSONDecodeError as e:
                 last_error = e
-                print(f"LLM JSON parse failed (attempt {attempt + 1}): {e}")
+                logger.warning("LLM JSON parse failed (attempt %d): %s", attempt + 1, e)
             except ValidationError as e:
                 last_error = e
-                print(f"LLM validation failed (attempt {attempt + 1}): {e}")
+                logger.warning("LLM validation failed (attempt %d): %s", attempt + 1, e)
 
-        print(f"All retries exhausted, using fallback. Last error: {last_error}")
-        print(f"Raw output (first 500 chars): {raw_output[:500]}")
+        logger.warning("All retries exhausted, using fallback. Last error: %s", last_error)
+        logger.debug("Raw LLM output (first 500 chars): %s", raw_output[:500])
         return get_fallback_schedule(intent, duration_minutes)
 
 

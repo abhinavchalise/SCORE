@@ -1,16 +1,17 @@
 import asyncio
 import os
 from datetime import datetime, timezone
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
 
+from backend.audio_processor.analyzer import analyze_track
+from backend.audio_processor.scanner import scan_directory
 from backend.db.database import get_db
 from backend.db.queries import LibraryQueries
 from backend.models.schemas import APIResponse, LibraryScanRequest
-from backend.audio_processor.scanner import scan_directory
-from backend.audio_processor.analyzer import analyze_track
 
 router = APIRouter(prefix="/library", tags=["library"])
 
@@ -23,7 +24,7 @@ MEDIA_TYPES = {
 
 @router.post("/scan", response_model=APIResponse)
 async def scan_library(req: LibraryScanRequest, db: AsyncSession = Depends(get_db)):
-    #Scan a directory for audio files and analyze them with librosa
+    # Scan a directory for audio files and analyze them with librosa
     loop = asyncio.get_running_loop()
 
     try:
@@ -33,12 +34,12 @@ async def scan_library(req: LibraryScanRequest, db: AsyncSession = Depends(get_d
 
     tracks_analyzed = 0
     for entry in found:
-        #Skip files already in the database
+        # Skip files already in the database
         existing = await LibraryQueries.get_by_path(db, entry["file_path"])
         if existing:
             continue
 
-        #Run librosa analysis in executor to avoid blocking
+        # Run librosa analysis in executor to avoid blocking
         analysis = await loop.run_in_executor(None, analyze_track, entry["file_path"])
 
         await LibraryQueries.create_track(

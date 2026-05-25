@@ -1,44 +1,52 @@
-from fastapi import FastAPI, Depends
+import logging
+from contextlib import asynccontextmanager
+
+import uvicorn
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from contextlib import asynccontextmanager
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
-import uvicorn
 
-from backend.models.schemas import APIResponse
 from backend.config import settings
-from backend.db.database import init_db, get_db
+from backend.db.database import get_db, init_db
 from backend.llm_engine.client import llm_engine
+from backend.models.schemas import APIResponse
 from backend.routers.sessions import router as sessions_router
+
+logging.basicConfig(
+    level=logging.DEBUG if settings.debug else logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+logger = logging.getLogger(__name__)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("Neurotune starting up")
+    logger.info("NeuroTune starting up")
     try:
         await init_db()
-        print("Initialized Database")
-    except Exception as e:
-        print(f"DB Setup Error: {e}")
+        logger.info("Database initialized")
+    except Exception:
+        logger.exception("Database initialization failed")
 
     try:
         await llm_engine.load()
-        print("LLM engine loaded")
-    except Exception as e:
-        print(f"LLM Load Error: {e}")
+        logger.info("LLM engine loaded")
+    except Exception:
+        logger.exception("LLM load failed")
 
     yield
-    print("Shutting down")
+    logger.info("Shutting down")
 
-#App instance
+
 app = FastAPI(
     title=settings.api_title,
     version=settings.api_version,
     description=settings.api_description,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
-#CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
@@ -47,26 +55,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#Session routes
 app.include_router(sessions_router)
 
-#GET
+
 @app.get("/", response_model=APIResponse)
 async def root():
     return APIResponse(
         success=True,
         message="API running",
-        data={
-            "version": settings.api_version,
-            "description": settings.api_description
-        }
+        data={"version": settings.api_version, "description": settings.api_description},
     )
 
-#Database Connectivity Test
+
 @app.get("/health", response_model=APIResponse)
 async def health_check(db: AsyncSession = Depends(get_db)):
     try:
-        #testing database connection
         await db.execute(text("SELECT 1"))
         db_status = "connected"
     except Exception as e:
@@ -75,14 +78,10 @@ async def health_check(db: AsyncSession = Depends(get_db)):
     return APIResponse(
         success=True,
         message="API health check",
-        data={
-            "status": "healthy",
-            "version": settings.api_version,
-            "database": db_status
-        }
+        data={"status": "healthy", "version": settings.api_version, "database": db_status},
     )
 
-#Error Handling
+
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
     return JSONResponse(
@@ -90,8 +89,8 @@ async def not_found_handler(request, exc):
         content={
             "success": False,
             "error": "Endpoint error",
-            "details": f"Endpoint {request.url.path} doesn't exist"
-        }
+            "details": f"Endpoint {request.url.path} doesn't exist",
+        },
     )
 
 
@@ -99,12 +98,9 @@ async def not_found_handler(request, exc):
 async def internal_server_error_handler(request, exc):
     return JSONResponse(
         status_code=500,
-        content={
-            "success": False,
-            "error": "Internal server error",
-            "details": "Server errored"
-        }
+        content={"success": False, "error": "Internal server error", "details": "Server errored"},
     )
+
 
 if __name__ == "__main__":
     uvicorn.run(
@@ -112,5 +108,5 @@ if __name__ == "__main__":
         host=settings.host,
         port=settings.port,
         reload=settings.debug,
-        log_level="info" if not settings.debug else "debug"
+        log_level="info" if not settings.debug else "debug",
     )

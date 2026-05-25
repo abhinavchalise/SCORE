@@ -1,11 +1,12 @@
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text, func
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Column, Integer, String, DateTime, Float, Text, Boolean, func
 
 
 class Base(DeclarativeBase):
     pass
 
-#User model
+
+# A registered user and their neurodiversity preferences
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -13,11 +14,9 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
 
-    #user neurodiversity trackers
     neurotype = Column(String(50), nullable=True)
     user_preferences = Column(Text, nullable=True)
 
-    #timestamps
     created_at = Column(DateTime, server_default=func.now())
     last_active = Column(DateTime, server_default=func.now())
     activity = Column(Boolean, nullable=True)
@@ -25,7 +24,8 @@ class User(Base):
     def __repr__(self):
         return f"<User(username={self.username}, email={self.email}, neurotype={self.neurotype})>"
 
-#Audio Track model
+
+# A catalogued audio asset
 class AudioTrack(Base):
     __tablename__ = "audio"
     id = Column(Integer, primary_key=True, index=True)
@@ -33,12 +33,10 @@ class AudioTrack(Base):
     file_path = Column(String(500), nullable=False)
     audio_type = Column(String(50), nullable=False)
 
-    #audio properties
     duration = Column(Float, nullable=False)
     frequency = Column(Float, nullable=False)
     bpm = Column(Float, nullable=True)
 
-    #Metadata for track categories
     tags = Column(Text, nullable=True)
     created_at = Column(DateTime, server_default=func.now())
     activity = Column(Boolean, nullable=True)
@@ -46,7 +44,8 @@ class AudioTrack(Base):
     def __repr__(self):
         return f"<AudioTrack(name={self.name}, type={self.audio_type}, duration={self.duration}s)>"
 
-#Session model — tracks LLM-generated audio sessions
+
+# An LLM-generated audio session and its feedback
 class Session(Base):
     __tablename__ = "sessions"
     id = Column(Integer, primary_key=True, index=True)
@@ -63,7 +62,7 @@ class Session(Base):
         return f"<Session(intent={self.intent}, duration={self.duration_sec}s)>"
 
 
-#Library model — user-uploaded audio file metadata
+# Metadata for a user-uploaded audio file
 class Library(Base):
     __tablename__ = "library"
     id = Column(Integer, primary_key=True, index=True)
@@ -81,7 +80,7 @@ class Library(Base):
         return f"<Library(filename={self.filename}, bpm={self.bpm})>"
 
 
-#Prompt model — LLM prompt templates stored in DB
+# A versioned LLM prompt template
 class Prompt(Base):
     __tablename__ = "prompts"
     id = Column(Integer, primary_key=True, index=True)
