@@ -3,7 +3,7 @@ import json
 import time
 import torch
 from pydantic import ValidationError
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
 from backend.config import settings
 from backend.models.schemas import ModulationSchedule
@@ -20,8 +20,8 @@ class LLMEngine:
         self.tokenizer = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
+    # initially loading in async to avoid blocking startup
     async def load(self):
-        #Called once during app lifespan startup — runs blocking load in executor
         print(f"Loading {settings.hf_model_id} on {self.device}...")
         start = time.time()
 
@@ -31,17 +31,22 @@ class LLMEngine:
         elapsed = time.time() - start
         print(f"Model loaded in {elapsed:.1f}s on {self.device}")
 
+    # models loaded in synchronous threads 
     def _load_model(self):
-        #Synchronous model loading — called via run_in_executor
         self.tokenizer = AutoTokenizer.from_pretrained(settings.hf_model_id)
-        self.model = AutoModelForCausalLM.from_pretrained(
-            settings.hf_model_id,
-            torch_dtype=torch.float16,
-            device_map="auto",
-        )
 
+        model_kwargs = {"device_map": "auto"}
+        if settings.quantization == "8bit":
+            model_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_8bit=True)
+        elif settings.quantization == "4bit":
+            model_kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
+        else:
+            model_kwargs["torch_dtype"] = torch.float16
+
+        self.model = AutoModelForCausalLM.from_pretrained(settings.hf_model_id, **model_kwargs)
+
+# Quen Schedule
     def generate_schedule(self, intent: str, duration_minutes: int = 25) -> ModulationSchedule:
-        #Synchronous inference — called from async endpoint via run_in_executor
         prompt = build_schedule_prompt(intent, duration_minutes)
 
         messages = [{"role": "user", "content": prompt}]
@@ -64,7 +69,7 @@ class LLMEngine:
             inference_time = time.time() - start
             print(f"LLM inference took {inference_time:.2f}s (attempt {attempt + 1})")
 
-            # Decode only new tokens (skip input)
+            # skipping input tokens to get only the new output tokens
             new_tokens = outputs[0][inputs["input_ids"].shape[1]:]
             raw_output = self.tokenizer.decode(new_tokens, skip_special_tokens=True)
 
@@ -82,5 +87,4 @@ class LLMEngine:
         return get_fallback_schedule(intent, duration_minutes)
 
 
-# Singleton
 llm_engine = LLMEngine()

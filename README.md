@@ -50,6 +50,14 @@ intent → classify → retrieve similar sessions + render prompt
 
 ---
 
+## Model Strategy
+
+The base model runs quantized with bitsandbytes (8-bit by default, 4-bit for tighter memory) inside the HuggingFace stack. Keeping inference in one stack leaves a direct path to QLoRA fine-tuning on session-feedback data, without standing up a second runtime before the data justifies it.
+
+When raw on-device inference speed becomes the priority, the planned step is exporting to GGUF and serving through llama.cpp. A deliberate later optimization, not a day-one dependency.
+
+---
+
 ## Tech Stack
 
 **Frontend:** Next.js 14 (App Router), Tone.js, Redux Toolkit, TypeScript
@@ -81,7 +89,7 @@ Configuration lives in `backend/config.py`, overridable via a project-root `.env
 | Variable       | Default                              | Why you'd change it                          |
 | -------------- | ------------------------------------ | -------------------------------------------- |
 | `HF_MODEL_ID`  | `Qwen/Qwen3.5-9B-Instruct`           | Swap the local model                         |
-| `QUANTIZATION` | `Q8_0`                               | Trade schema fidelity for memory (`Q6_K`)    |
+| `QUANTIZATION` | `8bit`                               | Lower to `4bit` to cut memory; `none` for full fp16 |
 | `DATABASE_URL` | `sqlite+aiosqlite:///./neurotune.db` | Point at MySQL instead of SQLite             |
 
 ---
