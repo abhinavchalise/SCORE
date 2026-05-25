@@ -1,66 +1,107 @@
 # NeuroTune
 
-Locally-hosted adaptive audio platform for neurodivergent users with an LLM "Conductor" generating real-time binaural beat modulation schedules while the browser synthesizes audio via Tone.js. Fully self-hosted, zero cloud dependencies. FastAPI + Next.js + HuggingFace Transformers.
+Generative focus music that runs entirely on your machine. Describe how you want to feel, and a local model composes a binaural-beat session and adapts it to your feedback.
 
-**Stack:** Next.js + Tone.js + Redux Toolkit (frontend), FastAPI + MySQL + HuggingFace Transformers (backend), librosa (audio analysis).
+Private by design. No cloud, no telemetry.
 
-## Privacy & Data
+![status: active development](https://img.shields.io/badge/status-active%20development-yellow)
 
-Everything runs locally. No cloud APIs, no telemetry, no external calls. Audio synthesis happens in-browser via Tone.js. LLM inference runs on your own hardware through HuggingFace Transformers. Your session data, audio files, and preferences never leave your machine.
+_Active development. The core pipeline works end to end; rebuilding parts of the UI, adjusting llm integration alongside getting latency benchmarks and walkthroughs are still in progress._
 
-## Getting Started
+---
 
-**Requirements:** Python 3.10+, Node.js 20+, ~20GB disk (LLM model cache), 16GB+ RAM recommended. CUDA GPU optional for faster inference. Docker optional for MySQL (SQLite works by default).
+## Session Types
+
+Intent is sorted into a closed taxonomy. The selected type seeds the prompt and the schedule template.
+
+| Type          | You'd ask for             | Targets                  |
+| ------------- | ------------------------- | ------------------------ |
+| Deep focus    | "heads-down for an hour"  | Sustained concentration  |
+| Light focus   | "background while I read" | Low-distraction ambience |
+| Creative flow | "loosen up to brainstorm" | Relaxed, open attention  |
+| Calm          | "help me settle"          | Lowered arousal          |
+| Sleep aid     | "wind down for bed"       | Drift toward sleep       |
+| Custom        | anything off-taxonomy     | Free-form generation     |
+
+---
+
+## Why Local Inference
+
+Cloud inference is the obvious path. NeuroTune deliberately does not take it.
+
+- **Privacy is the contract.** Session text describes how you feel and think, and never leaves the machine.
+- **Latency floor.** A hosted round-trip costs hundreds of milliseconds per generation, which a real-time audio path cannot absorb.
+- **Cost at scale.** Per-session cloud billing compounds; local inference is amortized hardware only.
+- **Offline by default.** Trains, planes, and dead zones still work.
+
+The tradeoff is a one-time model download and a few seconds of cold-start, accepted deliberately.
+
+---
+
+## How It Works
+
+A typed intent is classified, matched against past sessions that worked, and turned into a validated JSON schedule of binaural-beat parameters that streams to the browser for synthesis.
+
+```
+intent → classify → retrieve similar sessions + render prompt
+       → constrained LLM → JSON schedule → validate (fallback on fail)
+       → WebSocket → Tone.js synthesis → feedback → example bank
+```
+
+---
+
+## Tech Stack
+
+**Frontend:** Next.js 14 (App Router), Tone.js, Redux Toolkit, TypeScript
+
+**Backend:** Python 3.10+, FastAPI, async SQLAlchemy, Pydantic, WebSocket
+
+**ML:** HuggingFace Transformers, sentence-transformers, outlines (constrained decoding), librosa
+
+**Storage:** SQLite by default; MySQL via Docker for development
+
+---
+
+## Running Locally
+
+A CUDA GPU or Apple Silicon is strongly recommended; CPU-only inference is slow. The LLM (several GB) downloads on first backend run. Requires Python 3.10+, Node 20+, and ~16 GB RAM.
 
 ```bash
-# clone and enter project
-git clone https://github.com/<your-username>/NeuroTune.git && cd NeuroTune
-
-# backend — virtual env + dependencies
+# backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r backend/requirements.txt
+python backend/main.py            # http://localhost:8000  
 
-# frontend — install dependencies
-cd frontend && npm install && cd ..
-
-# (optional) start MySQL via Docker
-docker compose up -d
+# frontend (separate terminal)
+cd frontend && npm install && npm run dev   # http://localhost:3000
 ```
 
-**Environment** is configured in `backend/config.py` with sensible defaults. Override via `.env` in project root:
+Configuration lives in `backend/config.py`, overridable via a project-root `.env`. SQLite is the default store; MySQL is available with `docker compose up -d`. The settings most likely to matter:
 
-| Variable         | Default                                     | Description              |
-| ---------------- | ------------------------------------------- | ------------------------ |
-| `DATABASE_URL`   | `sqlite+aiosqlite:///./neurotune.db`        | Async DB connection      |
-| `HF_MODEL_ID`    | `deepseek-ai/DeepSeek-R1-Distill-Llama-8B` | HuggingFace model ID     |
-| `HOST`           | `127.0.0.1`                                 | Backend bind address     |
-| `PORT`           | `8000`                                      | Backend port             |
-| `DEBUG`          | `true`                                      | Debug mode               |
+| Variable       | Default                              | Why you'd change it                          |
+| -------------- | ------------------------------------ | -------------------------------------------- |
+| `HF_MODEL_ID`  | `Qwen/Qwen3.5-9B-Instruct`           | Swap the local model                         |
+| `QUANTIZATION` | `Q8_0`                               | Trade schema fidelity for memory (`Q6_K`)    |
+| `DATABASE_URL` | `sqlite+aiosqlite:///./neurotune.db` | Point at MySQL instead of SQLite             |
 
-SQLite works out of the box — no `.env` changes needed to get running.
-
-```bash
-# terminal 1 — backend (downloads LLM model on first run)
-source .venv/bin/activate && python backend/main.py
-# → http://localhost:8000  (API docs at /docs)
-
-# terminal 2 — frontend
-cd frontend && npm run dev
-# → http://localhost:3000
-```
+---
 
 ## Project Structure
 
-```text
-NeuroTune/
-├── backend/
-│   ├── db/           # async database engine, session factory, queries
-│   ├── models/       # SQLAlchemy ORM models, Pydantic request/response schemas
-│   ├── llm_engine/   # LLM loading, prompt templates, output validation, fallbacks
-│   └── routers/      # API endpoint handlers, WebSocket connections
-├── frontend/src/
-│   ├── app/          # Next.js App Router — pages, layouts, providers
-│   ├── lib/          # Tone.js audio synth, REST client, WebSocket client
-│   └── stores/       # Redux Toolkit store config, slices, typed hooks
-└── docker-compose.yml
 ```
+backend/
+  nlp/            intent classifier, prompt templates, example bank, validators, fallback
+  llm_engine/     model loading, constrained-decoding wrapper, latency instrumentation
+  audio_processor/ librosa track analysis
+  routers/        REST + WebSocket endpoints
+  models/         ORM + Pydantic schemas
+  db/             async engine, session factory, queries
+frontend/src/
+  app/            Next.js routes (onboarding, session, history, settings)
+  lib/            Tone.js synth, REST + WebSocket clients
+  stores/         Redux Toolkit slices
+```
+
+---
+
+MIT License In Progress
