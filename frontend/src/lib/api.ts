@@ -25,7 +25,7 @@ export interface SessionStartResponse {
 
 export async function startSession(
   intent: string,
-  durationMinutes: number = 25
+  durationMinutes: number = 25,
 ): Promise<SessionStartResponse> {
   const res = await fetch(`${API_BASE}/sessions/start`, {
     method: "POST",

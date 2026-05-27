@@ -22,7 +22,10 @@ const INTENTS = [
   "Sleep - Deep Rest",
 ];
 
-const CARRIER_FREQ = 200; //Hz, base carrier for binaural beats
+const CARRIER_FREQ = 200; // Hz, base carrier for binaural beats
+const SESSION_DURATION_MIN = 25;
+const START_VOLUME = 0.3;
+const LATENCY_THRESHOLD_MS = 3000;
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -40,7 +43,6 @@ export default function Home() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const startTimeRef = useRef<number>(0);
 
-  //Cleanup on unmount
   useEffect(() => {
     return () => {
       stopAll();
@@ -48,7 +50,7 @@ export default function Home() {
     };
   }, []);
 
-  //Step scheduler: when elapsed time crosses a step's timestamp, update audio
+  // Step scheduler: when elapsed time crosses a step's timestamp, update audio
   useEffect(() => {
     if (!schedule || status !== "playing") return;
 
@@ -57,11 +59,7 @@ export default function Home() {
       if (elapsedSec >= steps[i].timestamp_sec) {
         if (i !== currentStepIndex) {
           dispatch(stepChanged({ step: steps[i], index: i }));
-          updateBinauralBeat(
-            CARRIER_FREQ,
-            steps[i].binaural_freq,
-            steps[i].ramp_duration_sec
-          );
+          updateBinauralBeat(CARRIER_FREQ, steps[i].binaural_freq, steps[i].ramp_duration_sec);
         }
         break;
       }
@@ -73,19 +71,18 @@ export default function Home() {
     const t0 = performance.now();
 
     try {
-      const res = await startSession(selectedIntent, 25);
+      const res = await startSession(selectedIntent, SESSION_DURATION_MIN);
       const t1 = performance.now();
       const latency = Math.round(t1 - t0);
 
       const sched = res.data.schedule;
       dispatch(sessionStarted({ schedule: sched, latencyMs: latency }));
 
-      //Start audio with first step's parameters
-      await startBinauralBeat(CARRIER_FREQ, sched.steps[0].binaural_freq, 0.3);
+      // Start audio with first step's parameters
+      await startBinauralBeat(CARRIER_FREQ, sched.steps[0].binaural_freq, START_VOLUME);
 
       startTimeRef.current = Date.now();
 
-      //Elapsed time ticker
       timerRef.current = setInterval(() => {
         dispatch(tick(Math.floor((Date.now() - startTimeRef.current) / 1000)));
       }, 1000);
@@ -103,8 +100,7 @@ export default function Home() {
 
   return (
     <main className="max-w-2xl mx-auto p-10 font-mono text-white bg-black min-h-screen">
-      <h1 className="text-3xl font-bold mb-2">NeuroTune MVP</h1>
-      <p className="text-zinc-400 mb-8">End-to-end feasibility test</p>
+      <h1 className="text-3xl font-bold mb-8">NeuroTune</h1>
 
       {/* Intent selector */}
       <div className="mb-6">
@@ -123,7 +119,6 @@ export default function Home() {
         </select>
       </div>
 
-      {/* Start/Stop */}
       <div className="mb-6">
         {status === "idle" && (
           <button
@@ -134,9 +129,7 @@ export default function Home() {
           </button>
         )}
         {status === "loading" && (
-          <p className="text-yellow-400 animate-pulse">
-            Generating schedule via DeepSeek R1...
-          </p>
+          <p className="text-yellow-400 animate-pulse">Generating schedule...</p>
         )}
         {status === "playing" && (
           <button
@@ -148,18 +141,17 @@ export default function Home() {
         )}
       </div>
 
-      {/* Error */}
       {error && <p className="text-red-400 mb-4">Error: {error}</p>}
 
-      {/* Latency display */}
       {latencyMs !== null && (
         <p className="mb-4">
-          Round-trip latency:{" "}
-          <span className="font-bold">
-            {latencyMs}ms
-          </span>
-          <span className={latencyMs < 3000 ? "text-emerald-400 ml-2" : "text-red-400 ml-2"}>
-            {latencyMs < 3000 ? "PASS" : "FAIL - over 3s"}
+          Round-trip latency: <span className="font-bold">{latencyMs}ms</span>
+          <span
+            className={
+              latencyMs < LATENCY_THRESHOLD_MS ? "text-emerald-400 ml-2" : "text-red-400 ml-2"
+            }
+          >
+            {latencyMs < LATENCY_THRESHOLD_MS ? "PASS" : "FAIL - over 3s"}
           </span>
         </p>
       )}
@@ -170,9 +162,13 @@ export default function Home() {
           <h3 className="text-lg font-semibold mb-3">Now Playing</h3>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <p className="text-zinc-400">Elapsed:</p>
-            <p>{elapsedSec}s / {schedule?.total_duration_sec}s</p>
+            <p>
+              {elapsedSec}s / {schedule?.total_duration_sec}s
+            </p>
             <p className="text-zinc-400">Step:</p>
-            <p>{currentStepIndex + 1} / {schedule?.steps.length}</p>
+            <p>
+              {currentStepIndex + 1} / {schedule?.steps.length}
+            </p>
             <p className="text-zinc-400">Binaural Freq:</p>
             <p className="text-emerald-400 font-bold">{currentStep.binaural_freq} Hz</p>
             <p className="text-zinc-400">Target BPM:</p>
@@ -187,7 +183,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Schedule dump */}
       {schedule && (
         <details className="mt-6">
           <summary className="cursor-pointer text-zinc-400 hover:text-white transition-colors">

@@ -36,7 +36,7 @@ const sessionSlice = createSlice({
     },
     sessionStarted(
       state,
-      action: PayloadAction<{ schedule: ModulationSchedule; latencyMs: number }>
+      action: PayloadAction<{ schedule: ModulationSchedule; latencyMs: number }>,
     ) {
       state.status = "playing";
       state.schedule = action.payload.schedule;
@@ -59,10 +59,7 @@ const sessionSlice = createSlice({
     tick(state, action: PayloadAction<number>) {
       state.elapsedSec = action.payload;
     },
-    stepChanged(
-      state,
-      action: PayloadAction<{ step: ModulationStep; index: number }>
-    ) {
+    stepChanged(state, action: PayloadAction<{ step: ModulationStep; index: number }>) {
       state.currentStep = action.payload.step;
       state.currentStepIndex = action.payload.index;
     },
