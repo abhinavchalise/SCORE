@@ -6,7 +6,6 @@ interface BinauralState {
   leftPanner: Tone.Panner | null;
   rightPanner: Tone.Panner | null;
   gainNode: Tone.Gain | null;
-  isPlaying: boolean;
 }
 
 const state: BinauralState = {
@@ -15,13 +14,12 @@ const state: BinauralState = {
   leftPanner: null,
   rightPanner: null,
   gainNode: null,
-  isPlaying: false,
 };
 
 export async function startBinauralBeat(
   baseFreq: number,
   beatFreq: number,
-  volume: number = 0.3
+  volume: number = 0.3,
 ): Promise<void> {
   // Tone.js requires user gesture to start AudioContext
   await Tone.start();
@@ -29,9 +27,9 @@ export async function startBinauralBeat(
   // Stop any existing playback
   stopAll();
 
-  //Left ear: base frequency
-  //Right ear: base + beat frequency
-  //Brain perceives the difference as the binaural beat
+  // Left ear: base frequency
+  // Right ear: base + beat frequency
+  // Brain perceives the difference as the binaural beat
   const leftFreq = baseFreq;
   const rightFreq = baseFreq + beatFreq;
 
@@ -45,25 +43,18 @@ export async function startBinauralBeat(
 
   state.leftOsc.start();
   state.rightOsc.start();
-  state.isPlaying = true;
 }
 
 export function updateBinauralBeat(
   baseFreq: number,
   beatFreq: number,
-  rampTimeSec: number = 2
+  rampTimeSec: number = 2,
 ): void {
   if (!state.leftOsc || !state.rightOsc) return;
 
   const now = Tone.now();
   state.leftOsc.frequency.rampTo(baseFreq, rampTimeSec, now);
   state.rightOsc.frequency.rampTo(baseFreq + beatFreq, rampTimeSec, now);
-}
-
-export function setVolume(volume: number): void {
-  if (state.gainNode) {
-    state.gainNode.gain.rampTo(volume, 0.1);
-  }
 }
 
 export function stopAll(): void {
@@ -84,9 +75,4 @@ export function stopAll(): void {
   state.leftPanner = null;
   state.rightPanner = null;
   state.gainNode = null;
-  state.isPlaying = false;
-}
-
-export function getIsPlaying(): boolean {
-  return state.isPlaying;
 }

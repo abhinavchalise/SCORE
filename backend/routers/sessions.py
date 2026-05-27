@@ -1,20 +1,27 @@
 import asyncio
 import json
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+import logging
+
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.db.database import get_db
-from backend.models.orm import Session as SessionModel
-from backend.models.schemas import APIResponse, SessionStartRequest
-from backend.llm_engine.client import llm_engine
 from backend.config import settings
+from backend.db.database import get_db
+from backend.db.queries import SessionQueries
+from backend.llm_engine.client import llm_engine
+from backend.models.schemas import APIResponse, SessionStartRequest
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
 
 @router.post("/start", response_model=APIResponse)
-async def start_session(req: SessionStartRequest, db: AsyncSession = Depends(get_db)):
-    #Run LLM inference in a thread executor to avoid blocking the event loop
+async def start_session(
+    req: SessionStartRequest, db: AsyncSession = Depends(get_db)
+) -> APIResponse:
+    """Generate a modulation schedule for the intent and persist the session."""
+    # Run LLM inference in a thread executor to avoid blocking the event loop
     loop = asyncio.get_running_loop()
     schedule = await asyncio.wait_for(
         loop.run_in_executor(
@@ -26,15 +33,12 @@ async def start_session(req: SessionStartRequest, db: AsyncSession = Depends(get
         timeout=settings.llm_timeout_seconds,
     )
 
-    #to DB
-    session_record = SessionModel(
+    session_record = await SessionQueries.create_session(
+        db,
         intent=req.intent,
         schedule=schedule.model_dump_json(),
         duration_sec=schedule.total_duration_sec,
     )
-    db.add(session_record)
-    await db.flush()
-    await db.refresh(session_record)
 
     return APIResponse(
         success=True,
@@ -47,8 +51,8 @@ async def start_session(req: SessionStartRequest, db: AsyncSession = Depends(get
 
 
 @router.websocket("/ws/{session_id}")
-async def session_websocket(websocket: WebSocket, session_id: int):
-    #Basic WebSocket, poc for transport. Sends connected message + ping/pong.
+async def session_websocket(websocket: WebSocket, session_id: int) -> None:
+    """WebSocket transport for a session: connection plus ping/pong."""
     await websocket.accept()
     try:
         await websocket.send_json({"type": "connected", "session_id": session_id})
@@ -60,9 +64,11 @@ async def session_websocket(websocket: WebSocket, session_id: int):
             if msg.get("type") == "ping":
                 await websocket.send_json({"type": "pong"})
             elif msg.get("type") == "request_schedule":
-                await websocket.send_json({
-                    "type": "schedule_ack",
-                    "message": "Schedule delivery via WebSocket confirmed",
-                })
+                await websocket.send_json(
+                    {
+                        "type": "schedule_ack",
+                        "message": "Schedule delivery via WebSocket confirmed",
+                    }
+                )
     except WebSocketDisconnect:
-        print(f"WebSocket disconnected for session {session_id}")
+        logger.info("WebSocket disconnected for session %s", session_id)

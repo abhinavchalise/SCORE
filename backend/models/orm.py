@@ -1,23 +1,23 @@
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text, func
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Column, Integer, String, DateTime, Float, Text, Boolean, func
 
 
 class Base(DeclarativeBase):
     pass
 
-#User model
+
 class User(Base):
+    """A registered user and their neurodiversity preferences."""
+
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String(50), unique=True, index=True, nullable=False)
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
 
-    #user neurodiversity trackers
     neurotype = Column(String(50), nullable=True)
     user_preferences = Column(Text, nullable=True)
 
-    #timestamps
     created_at = Column(DateTime, server_default=func.now())
     last_active = Column(DateTime, server_default=func.now())
     activity = Column(Boolean, nullable=True)
@@ -25,29 +25,10 @@ class User(Base):
     def __repr__(self):
         return f"<User(username={self.username}, email={self.email}, neurotype={self.neurotype})>"
 
-#Audio Track model
-class AudioTrack(Base):
-    __tablename__ = "audio"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(255), nullable=False)
-    file_path = Column(String(500), nullable=False)
-    audio_type = Column(String(50), nullable=False)
 
-    #audio properties
-    duration = Column(Float, nullable=False)
-    frequency = Column(Float, nullable=False)
-    bpm = Column(Float, nullable=True)
-
-    #Metadata for track categories
-    tags = Column(Text, nullable=True)
-    created_at = Column(DateTime, server_default=func.now())
-    activity = Column(Boolean, nullable=True)
-
-    def __repr__(self):
-        return f"<AudioTrack(name={self.name}, type={self.audio_type}, duration={self.duration}s)>"
-
-#Session model — tracks LLM-generated audio sessions
 class Session(Base):
+    """An LLM-generated audio session and its feedback."""
+
     __tablename__ = "sessions"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, nullable=True)  # nullable for MVP (no auth)
@@ -63,8 +44,9 @@ class Session(Base):
         return f"<Session(intent={self.intent}, duration={self.duration_sec}s)>"
 
 
-#Library model — user-uploaded audio file metadata
 class Library(Base):
+    """Metadata for a user-uploaded audio file."""
+
     __tablename__ = "library"
     id = Column(Integer, primary_key=True, index=True)
     file_path = Column(String(512), unique=True, nullable=False)
@@ -79,19 +61,3 @@ class Library(Base):
 
     def __repr__(self):
         return f"<Library(filename={self.filename}, bpm={self.bpm})>"
-
-
-#Prompt model — LLM prompt templates stored in DB
-class Prompt(Base):
-    __tablename__ = "prompts"
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), unique=True, nullable=False)
-    template = Column(Text, nullable=False)
-    model = Column(String(100), default="deepseek-ai/DeepSeek-R1-Distill-Llama-8B")
-    version = Column(Integer, default=1)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, server_default=func.now())
-    updated_at = Column(DateTime, server_default=func.now())
-
-    def __repr__(self):
-        return f"<Prompt(name={self.name}, version={self.version})>"

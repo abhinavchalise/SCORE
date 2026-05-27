@@ -5,7 +5,6 @@ SUPPORTED_FORMATS = {"wav", "flac", "mp3"}
 
 
 def scan_directory(directory_path: str) -> List[dict]:
-    #Walk directory tree, collect audio files matching supported formats
     if not os.path.isdir(directory_path):
         raise ValueError(f"Directory does not exist: {directory_path}")
 
@@ -17,10 +16,12 @@ def scan_directory(directory_path: str) -> List[dict]:
                 continue
 
             file_path = os.path.join(root, filename)
-            tracks.append({
-                "file_path": os.path.abspath(file_path),
-                "filename": filename,
-                "format": ext,
-            })
+            tracks.append(
+                {
+                    "file_path": os.path.abspath(file_path),
+                    "filename": filename,
+                    "format": ext,
+                }
+            )
 
     return tracks

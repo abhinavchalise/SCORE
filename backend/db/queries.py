@@ -1,12 +1,12 @@
-#queries for auth/session management and audio ops
+from datetime import datetime, timezone
+from typing import List, Optional
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from typing import List, Optional
-from datetime import datetime, timezone
 
-from backend.models.orm import User, AudioTrack, Session, Library, Prompt
+from backend.models.orm import Library, Session, User
 
-#CRUD ops for User
+
 class UserQueries:
     @staticmethod
     async def create_user(
@@ -15,9 +15,8 @@ class UserQueries:
         username: str,
         hashed_password: str,
         neurotype: Optional[str] = None,
-        volume_preference: Optional[float] = 0.5
+        volume_preference: Optional[float] = 0.5,
     ) -> User:
-        #new user
         user = User(
             email=email,
             username=username,
@@ -26,44 +25,31 @@ class UserQueries:
             user_preferences=None,
             created_at=datetime.now(timezone.utc),
             last_active=datetime.now(timezone.utc),
-            activity=True
+            activity=True,
         )
         db.add(user)
         await db.commit()
         await db.refresh(user)
         return user
 
-    #User Details
     @staticmethod
     async def get_by_email(db: AsyncSession, email: str) -> Optional[User]:
-        result = await db.execute(
-            select(User).where(User.email == email)
-        )
+        result = await db.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
 
     @staticmethod
     async def get_by_id(db: AsyncSession, user_id: int) -> Optional[User]:
-        result = await db.execute(
-            select(User).where(User.id == user_id)
-        )
+        result = await db.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()
 
     @staticmethod
     async def get_by_username(db: AsyncSession, username: str) -> Optional[User]:
-        result = await db.execute(
-            select(User).where(User.username == username)
-        )
+        result = await db.execute(select(User).where(User.username == username))
         return result.scalar_one_or_none()
 
     @staticmethod
-    async def list_users(
-        db: AsyncSession,
-        skip: int = 0,
-        limit: int = 100
-    ) -> List[User]:
-        result = await db.execute(
-            select(User).offset(skip).limit(limit)
-        )
+    async def list_users(db: AsyncSession, skip: int = 0, limit: int = 100) -> List[User]:
+        result = await db.execute(select(User).offset(skip).limit(limit))
         return result.scalars().all()
 
     @staticmethod
@@ -76,86 +62,6 @@ class UserQueries:
         return user
 
 
-#CRUD ops for AudioTrack
-class AudioTrackQueries:
-    @staticmethod
-    async def create_track(
-        db: AsyncSession,
-        name: str,
-        file_path: str,
-        audio_type: str,
-        duration: float,
-        frequency: float,
-        bpm: Optional[float] = None,
-        tags: Optional[str] = None
-    ) -> AudioTrack:
-        #new audio track
-        track = AudioTrack(
-            name=name,
-            file_path=file_path,
-            audio_type=audio_type,
-            duration=duration,
-            frequency=frequency,
-            bpm=bpm,
-            tags=tags,
-            created_at=datetime.now(timezone.utc),
-            activity=True
-        )
-        db.add(track)
-        await db.commit()
-        await db.refresh(track)
-        return track
-
-    #Audio Track Details
-    @staticmethod
-    async def get_by_id(db: AsyncSession, track_id: int) -> Optional[AudioTrack]:
-        result = await db.execute(
-            select(AudioTrack).where(AudioTrack.id == track_id)
-        )
-        return result.scalar_one_or_none()
-
-    @staticmethod
-    async def get_by_name(db: AsyncSession, name: str) -> Optional[AudioTrack]:
-        result = await db.execute(
-            select(AudioTrack).where(AudioTrack.name == name)
-        )
-        return result.scalar_one_or_none()
-
-    @staticmethod
-    async def list_tracks(
-        db: AsyncSession,
-        skip: int = 0,
-        limit: int = 100,
-        audio_type: Optional[str] = None
-    ) -> List[AudioTrack]:
-        #all tracks with optional audio type
-        query = select(AudioTrack)
-
-        if audio_type:
-            query = query.where(AudioTrack.audio_type == audio_type)
-
-        query = query.offset(skip).limit(limit)
-        result = await db.execute(query)
-        return result.scalars().all()
-
-    @staticmethod
-    async def list_by_audio_type(
-        db: AsyncSession,
-        audio_type: str,
-        skip: int = 0,
-        limit: int = 100
-    ) -> List[AudioTrack]:
-        #tracks filtered by audio type
-        result = await db.execute(
-            select(AudioTrack)
-            .where(AudioTrack.audio_type == audio_type)
-            .offset(skip)
-            .limit(limit)
-        )
-        return result.scalars().all()
-
-
-#CRUD ops for Session
 class SessionQueries:
     @staticmethod
     async def create_session(
@@ -163,7 +69,7 @@ class SessionQueries:
         intent: str,
         schedule: str,
         duration_sec: int,
-        user_id: Optional[int] = None
+        user_id: Optional[int] = None,
     ) -> Session:
         session = Session(
             user_id=user_id,
@@ -178,17 +84,12 @@ class SessionQueries:
 
     @staticmethod
     async def get_by_id(db: AsyncSession, session_id: int) -> Optional[Session]:
-        result = await db.execute(
-            select(Session).where(Session.id == session_id)
-        )
+        result = await db.execute(select(Session).where(Session.id == session_id))
         return result.scalar_one_or_none()
 
     @staticmethod
     async def list_by_user(
-        db: AsyncSession,
-        user_id: int,
-        limit: int = 20,
-        offset: int = 0
+        db: AsyncSession, user_id: int, limit: int = 20, offset: int = 0
     ) -> List[Session]:
         result = await db.execute(
             select(Session)
@@ -204,7 +105,7 @@ class SessionQueries:
         db: AsyncSession,
         session_id: int,
         rating: Optional[int] = None,
-        feedback_note: Optional[str] = None
+        feedback_note: Optional[str] = None,
     ) -> Optional[Session]:
         session = await SessionQueries.get_by_id(db, session_id)
         if not session:
@@ -220,7 +121,6 @@ class SessionQueries:
         return session
 
 
-#CRUD ops for Library
 class LibraryQueries:
     @staticmethod
     async def create_track(
@@ -232,7 +132,7 @@ class LibraryQueries:
         bpm: Optional[float] = None,
         key_signature: Optional[str] = None,
         tags: Optional[str] = None,
-        analyzed_at: Optional[datetime] = None
+        analyzed_at: Optional[datetime] = None,
     ) -> Library:
         track = Library(
             file_path=file_path,
@@ -251,16 +151,12 @@ class LibraryQueries:
 
     @staticmethod
     async def get_by_id(db: AsyncSession, track_id: int) -> Optional[Library]:
-        result = await db.execute(
-            select(Library).where(Library.id == track_id)
-        )
+        result = await db.execute(select(Library).where(Library.id == track_id))
         return result.scalar_one_or_none()
 
     @staticmethod
     async def get_by_path(db: AsyncSession, file_path: str) -> Optional[Library]:
-        result = await db.execute(
-            select(Library).where(Library.file_path == file_path)
-        )
+        result = await db.execute(select(Library).where(Library.file_path == file_path))
         return result.scalar_one_or_none()
 
     @staticmethod
@@ -269,7 +165,7 @@ class LibraryQueries:
         bpm_min: Optional[float] = None,
         bpm_max: Optional[float] = None,
         format: Optional[str] = None,
-        limit: int = 50
+        limit: int = 50,
     ) -> List[Library]:
         query = select(Library)
         if bpm_min is not None:
@@ -280,21 +176,4 @@ class LibraryQueries:
             query = query.where(Library.format == format)
         query = query.limit(limit)
         result = await db.execute(query)
-        return result.scalars().all()
-
-
-#CRUD ops for Prompt
-class PromptQueries:
-    @staticmethod
-    async def get_active_by_name(db: AsyncSession, name: str) -> Optional[Prompt]:
-        result = await db.execute(
-            select(Prompt).where(Prompt.name == name, Prompt.is_active)
-        )
-        return result.scalar_one_or_none()
-
-    @staticmethod
-    async def list_active(db: AsyncSession) -> List[Prompt]:
-        result = await db.execute(
-            select(Prompt).where(Prompt.is_active)
-        )
         return result.scalars().all()
