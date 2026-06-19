@@ -1,4 +1,4 @@
-# NeuroTune Frontend
+# SCORE Frontend
 
 Next.js UI for the adaptive focus-music platform. It takes a
 natural-language intent, requests a binaural-beat schedule from the backend, and

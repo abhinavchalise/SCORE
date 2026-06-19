@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("NeuroTune starting up")
+    logger.info("SCORE starting up")
     try:
         await init_db()
         logger.info("Database initialized")
@@ -78,8 +78,9 @@ async def health_check(db: AsyncSession = Depends(get_db)) -> APIResponse:
     try:
         await db.execute(text("SELECT 1"))
         db_status = "connected"
-    except Exception as e:
-        db_status = f"error: {str(e)}"
+    except Exception:
+        logger.exception("Health check database query failed")
+        db_status = "error"
 
     return APIResponse(
         success=True,

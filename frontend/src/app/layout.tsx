@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NeuroTune",
-  description: "Personalized Brain Stimulating Audio",
+  title: "SCORE",
+  description: "Local AI that composes focus-audio schedules from typed intent",
 };
 
 export default function RootLayout({

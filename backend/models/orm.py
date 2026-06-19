@@ -31,7 +31,7 @@ class Session(Base):
 
     __tablename__ = "sessions"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=True)  # nullable for MVP (no auth)
+    user_id = Column(Integer, nullable=True)  # nullable: sessions can be created without an authenticated user
     intent = Column(String(100), nullable=False)
     schedule = Column(Text, nullable=False)  # JSON string
     duration_sec = Column(Integer, nullable=True)

@@ -61,6 +61,7 @@ class LLMEngine:
         inputs = self.tokenizer(input_text, return_tensors="pt").to(self.device)
 
         last_error = None
+        raw_output = ""
         for attempt in range(MAX_RETRIES + 1):
             start = time.time()
             with torch.no_grad():
@@ -68,7 +69,7 @@ class LLMEngine:
                     **inputs,
                     max_new_tokens=settings.llm_max_new_tokens,
                     temperature=settings.llm_temperature,
-                    top_p=0.95,
+                    top_p=settings.llm_top_p,
                     do_sample=True,
                 )
             inference_time = time.time() - start

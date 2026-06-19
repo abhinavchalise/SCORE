@@ -52,7 +52,7 @@ jobs:
         run: ruff check .
 
       - name: Format
-        run: ruff format .
+        run: ruff format --check .
 
       - name: Syntax check
         run: python -m py_compile main.py

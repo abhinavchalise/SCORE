@@ -1,4 +1,4 @@
-SCHEDULE_PROMPT_TEMPLATE = """You are an audio therapy parameter generator. Given a user's session intent, produce a modulation schedule as a JSON object.
+SCHEDULE_PROMPT_TEMPLATE = """You are a binaural-beat schedule generator. Given a user's session intent, produce a modulation schedule as a JSON object.
 
 The user's intent is: "{intent}"
 Requested session duration: {duration_minutes} minutes.

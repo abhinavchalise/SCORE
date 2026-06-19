@@ -21,22 +21,19 @@ export async function startBinauralBeat(
   beatFreq: number,
   volume: number = 0.3,
 ): Promise<void> {
-  // Tone.js requires user gesture to start AudioContext
   await Tone.start();
-
-  // Stop any existing playback
   stopAll();
 
   // Left ear: base frequency
   // Right ear: base + beat frequency
-  // Brain perceives the difference as the binaural beat
+  // User perceives the difference as the binaural beat
   const leftFreq = baseFreq;
   const rightFreq = baseFreq + beatFreq;
 
   state.gainNode = new Tone.Gain(volume).toDestination();
 
-  state.leftPanner = new Tone.Panner(-1).connect(state.gainNode); // hard left
-  state.rightPanner = new Tone.Panner(1).connect(state.gainNode); // hard right
+  state.leftPanner = new Tone.Panner(-1).connect(state.gainNode);
+  state.rightPanner = new Tone.Panner(1).connect(state.gainNode);
 
   state.leftOsc = new Tone.Oscillator(leftFreq, "sine").connect(state.leftPanner);
   state.rightOsc = new Tone.Oscillator(rightFreq, "sine").connect(state.rightPanner);

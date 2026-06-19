@@ -1,6 +1,7 @@
 import logging
 from typing import Optional
 
+import librosa
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -10,8 +11,6 @@ PITCH_CLASSES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
 
 def analyze_track(file_path: str) -> dict:
     """Extract duration, BPM, and key; fields are null when analysis fails."""
-    import librosa
-
     try:
         y, sr = librosa.load(file_path, sr=22050)
     except Exception:
@@ -31,8 +30,6 @@ def analyze_track(file_path: str) -> dict:
 
 def _extract_bpm(y: np.ndarray, sr: int) -> Optional[float]:
     try:
-        import librosa
-
         tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
         # librosa >= 0.10 returns an array
         if hasattr(tempo, "__len__"):
@@ -45,8 +42,6 @@ def _extract_bpm(y: np.ndarray, sr: int) -> Optional[float]:
 
 def _extract_key(y: np.ndarray, sr: int) -> Optional[str]:
     try:
-        import librosa
-
         chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
         chroma_mean = np.mean(chroma, axis=1)
         key_index = int(np.argmax(chroma_mean))

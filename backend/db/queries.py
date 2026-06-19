@@ -15,7 +15,6 @@ class UserQueries:
         username: str,
         hashed_password: str,
         neurotype: Optional[str] = None,
-        volume_preference: Optional[float] = 0.5,
     ) -> User:
         user = User(
             email=email,
@@ -48,11 +47,6 @@ class UserQueries:
         return result.scalar_one_or_none()
 
     @staticmethod
-    async def list_users(db: AsyncSession, skip: int = 0, limit: int = 100) -> List[User]:
-        result = await db.execute(select(User).offset(skip).limit(limit))
-        return result.scalars().all()
-
-    @staticmethod
     async def update_last_active(db: AsyncSession, user_id: int) -> Optional[User]:
         user = await UserQueries.get_by_id(db, user_id)
         if user:
@@ -78,44 +72,6 @@ class SessionQueries:
             duration_sec=duration_sec,
         )
         db.add(session)
-        await db.commit()
-        await db.refresh(session)
-        return session
-
-    @staticmethod
-    async def get_by_id(db: AsyncSession, session_id: int) -> Optional[Session]:
-        result = await db.execute(select(Session).where(Session.id == session_id))
-        return result.scalar_one_or_none()
-
-    @staticmethod
-    async def list_by_user(
-        db: AsyncSession, user_id: int, limit: int = 20, offset: int = 0
-    ) -> List[Session]:
-        result = await db.execute(
-            select(Session)
-            .where(Session.user_id == user_id)
-            .order_by(Session.started_at.desc())
-            .limit(limit)
-            .offset(offset)
-        )
-        return result.scalars().all()
-
-    @staticmethod
-    async def end_session(
-        db: AsyncSession,
-        session_id: int,
-        rating: Optional[int] = None,
-        feedback_note: Optional[str] = None,
-    ) -> Optional[Session]:
-        session = await SessionQueries.get_by_id(db, session_id)
-        if not session:
-            return None
-        session.ended_at = datetime.now(timezone.utc)
-        if session.started_at:
-            delta = session.ended_at - session.started_at
-            session.duration_sec = int(delta.total_seconds())
-        session.rating = rating
-        session.feedback_note = feedback_note
         await db.commit()
         await db.refresh(session)
         return session

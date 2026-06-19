@@ -5,7 +5,7 @@ from backend.models.schemas import ModulationSchedule
 
 
 def strip_think_tags(text: str) -> str:
-    """Remove <think>...</think> reasoning blocks from R1-style output."""
+    """Remove <think>...</think> reasoning blocks emitted by thinking-capable models."""
     return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 
 

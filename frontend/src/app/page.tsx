@@ -25,7 +25,6 @@ const INTENTS = [
 const CARRIER_FREQ = 200; // Hz, base carrier for binaural beats
 const SESSION_DURATION_MIN = 25;
 const START_VOLUME = 0.3;
-const LATENCY_THRESHOLD_MS = 3000;
 
 export default function Home() {
   const dispatch = useAppDispatch();
@@ -100,7 +99,7 @@ export default function Home() {
 
   return (
     <main className="max-w-2xl mx-auto p-10 font-mono text-white bg-black min-h-screen">
-      <h1 className="text-3xl font-bold mb-8">NeuroTune</h1>
+      <h1 className="text-3xl font-bold mb-8">SCORE</h1>
 
       {/* Intent selector */}
       <div className="mb-6">
@@ -144,15 +143,8 @@ export default function Home() {
       {error && <p className="text-red-400 mb-4">Error: {error}</p>}
 
       {latencyMs !== null && (
-        <p className="mb-4">
-          Round-trip latency: <span className="font-bold">{latencyMs}ms</span>
-          <span
-            className={
-              latencyMs < LATENCY_THRESHOLD_MS ? "text-emerald-400 ml-2" : "text-red-400 ml-2"
-            }
-          >
-            {latencyMs < LATENCY_THRESHOLD_MS ? "PASS" : "FAIL - over 3s"}
-          </span>
+        <p className="mb-4 text-zinc-400">
+          Generated in <span className="font-bold text-white">{latencyMs}ms</span>
         </p>
       )}
 

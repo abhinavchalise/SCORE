@@ -1,8 +1,6 @@
 import asyncio
-import json
-import logging
 
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.config import settings
@@ -10,8 +8,6 @@ from backend.db.database import get_db
 from backend.db.queries import SessionQueries
 from backend.llm_engine.client import llm_engine
 from backend.models.schemas import APIResponse, SessionStartRequest
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -48,27 +44,3 @@ async def start_session(
             "schedule": schedule.model_dump(),
         },
     )
-
-
-@router.websocket("/ws/{session_id}")
-async def session_websocket(websocket: WebSocket, session_id: int) -> None:
-    """WebSocket transport for a session: connection plus ping/pong."""
-    await websocket.accept()
-    try:
-        await websocket.send_json({"type": "connected", "session_id": session_id})
-
-        while True:
-            data = await websocket.receive_text()
-            msg = json.loads(data)
-
-            if msg.get("type") == "ping":
-                await websocket.send_json({"type": "pong"})
-            elif msg.get("type") == "request_schedule":
-                await websocket.send_json(
-                    {
-                        "type": "schedule_ack",
-                        "message": "Schedule delivery via WebSocket confirmed",
-                    }
-                )
-    except WebSocketDisconnect:
-        logger.info("WebSocket disconnected for session %s", session_id)
