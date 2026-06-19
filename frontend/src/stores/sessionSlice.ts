@@ -14,7 +14,7 @@ interface SessionState {
 
 const initialState: SessionState = {
   status: "idle",
-  intent: "Deep Focus - Coding",
+  intent: "deep_focus",
   schedule: null,
   currentStep: null,
   currentStepIndex: 0,

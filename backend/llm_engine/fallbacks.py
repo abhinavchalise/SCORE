@@ -1,8 +1,8 @@
 from backend.models.schemas import ModulationSchedule, ModulationStep
 
 FALLBACK_SCHEDULES = {
-    "focus": ModulationSchedule(
-        intent="focus",
+    "deep_focus": ModulationSchedule(
+        intent="deep_focus",
         total_duration_sec=1500,
         steps=[
             ModulationStep(
@@ -35,8 +35,8 @@ FALLBACK_SCHEDULES = {
             ),
         ],
     ),
-    "relax": ModulationSchedule(
-        intent="relax",
+    "calm": ModulationSchedule(
+        intent="calm",
         total_duration_sec=1500,
         steps=[
             ModulationStep(
@@ -69,8 +69,8 @@ FALLBACK_SCHEDULES = {
             ),
         ],
     ),
-    "sleep": ModulationSchedule(
-        intent="sleep",
+    "sleep_aid": ModulationSchedule(
+        intent="sleep_aid",
         total_duration_sec=1500,
         steps=[
             ModulationStep(
@@ -105,11 +105,17 @@ FALLBACK_SCHEDULES = {
     ),
 }
 
+INTENT_FALLBACKS = {
+    "deep_focus": "deep_focus",
+    "light_focus": "deep_focus",
+    "creative_flow": "deep_focus",
+    "calm": "calm",
+    "sleep_aid": "sleep_aid",
+    "custom": "deep_focus",
+}
+
 
 def get_fallback_schedule(intent: str, duration_minutes: int = 25) -> ModulationSchedule:
-    """Return a safe hardcoded schedule by matching intent keywords."""
-    intent_lower = intent.lower()
-    for key in FALLBACK_SCHEDULES:
-        if key in intent_lower:
-            return FALLBACK_SCHEDULES[key]
-    return FALLBACK_SCHEDULES["focus"]
+    """Return a safe hardcoded schedule for the intent, labeled with that intent."""
+    key = INTENT_FALLBACKS.get(intent, "deep_focus")
+    return FALLBACK_SCHEDULES[key].model_copy(update={"intent": intent})

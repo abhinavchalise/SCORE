@@ -10,7 +10,9 @@ class Settings(BaseSettings):
 
     api_title: str = "SCORE API"
     api_version: str = "1.0.0"
-    api_description: str = "Local LLM backend that generates validated binaural-beat audio schedules from typed intent"
+    api_description: str = (
+        "Local LLM backend that generates validated binaural-beat audio schedules from typed intent"
+    )
 
     host: str = "127.0.0.1"
     port: int = 8000

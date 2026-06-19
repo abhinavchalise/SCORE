@@ -1,16 +1,16 @@
 import * as Tone from "tone";
 
 interface BinauralState {
-  leftOsc: Tone.Oscillator | null;
-  rightOsc: Tone.Oscillator | null;
+  leftOscillator: Tone.Oscillator | null;
+  rightOscillator: Tone.Oscillator | null;
   leftPanner: Tone.Panner | null;
   rightPanner: Tone.Panner | null;
   gainNode: Tone.Gain | null;
 }
 
 const state: BinauralState = {
-  leftOsc: null,
-  rightOsc: null,
+  leftOscillator: null,
+  rightOscillator: null,
   leftPanner: null,
   rightPanner: null,
   gainNode: null,
@@ -35,40 +35,40 @@ export async function startBinauralBeat(
   state.leftPanner = new Tone.Panner(-1).connect(state.gainNode);
   state.rightPanner = new Tone.Panner(1).connect(state.gainNode);
 
-  state.leftOsc = new Tone.Oscillator(leftFreq, "sine").connect(state.leftPanner);
-  state.rightOsc = new Tone.Oscillator(rightFreq, "sine").connect(state.rightPanner);
+  state.leftOscillator = new Tone.Oscillator(leftFreq, "sine").connect(state.leftPanner);
+  state.rightOscillator = new Tone.Oscillator(rightFreq, "sine").connect(state.rightPanner);
 
-  state.leftOsc.start();
-  state.rightOsc.start();
+  state.leftOscillator.start();
+  state.rightOscillator.start();
 }
 
 export function updateBinauralBeat(
   baseFreq: number,
   beatFreq: number,
-  rampTimeSec: number = 2,
+  rampDurationSec: number = 2,
 ): void {
-  if (!state.leftOsc || !state.rightOsc) return;
+  if (!state.leftOscillator || !state.rightOscillator) return;
 
   const now = Tone.now();
-  state.leftOsc.frequency.rampTo(baseFreq, rampTimeSec, now);
-  state.rightOsc.frequency.rampTo(baseFreq + beatFreq, rampTimeSec, now);
+  state.leftOscillator.frequency.rampTo(baseFreq, rampDurationSec, now);
+  state.rightOscillator.frequency.rampTo(baseFreq + beatFreq, rampDurationSec, now);
 }
 
 export function stopAll(): void {
-  if (state.leftOsc) {
-    state.leftOsc.stop();
-    state.leftOsc.dispose();
+  if (state.leftOscillator) {
+    state.leftOscillator.stop();
+    state.leftOscillator.dispose();
   }
-  if (state.rightOsc) {
-    state.rightOsc.stop();
-    state.rightOsc.dispose();
+  if (state.rightOscillator) {
+    state.rightOscillator.stop();
+    state.rightOscillator.dispose();
   }
   if (state.leftPanner) state.leftPanner.dispose();
   if (state.rightPanner) state.rightPanner.dispose();
   if (state.gainNode) state.gainNode.dispose();
 
-  state.leftOsc = null;
-  state.rightOsc = null;
+  state.leftOscillator = null;
+  state.rightOscillator = null;
   state.leftPanner = null;
   state.rightPanner = null;
   state.gainNode = null;

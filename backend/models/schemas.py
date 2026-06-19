@@ -1,17 +1,6 @@
-from enum import Enum
 from typing import Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, EmailStr, Field
-
-
-# Enums
-class NeurotypeEnum(str, Enum):
-    ADHD = "ADHD"
-    AUTISM = "Autism"
-    ANXIETY = "Anxiety"
-    DEPRESSION = "Depression"
-    NEUROTYPICAL = "Neurotypical"
-    OTHER = "Other"
 
 
 # Response schema
@@ -25,11 +14,21 @@ class APIResponse(BaseModel):
 class UserBase(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=50)
-    neurotype: Optional[NeurotypeEnum] = None
 
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8)
+
+
+# Intent taxonomy
+INTENTS = [
+    "deep_focus",
+    "light_focus",
+    "creative_flow",
+    "calm",
+    "sleep_aid",
+    "custom",
+]
 
 
 # LLM schemas
@@ -38,7 +37,7 @@ class ModulationStep(BaseModel):
     target_bpm: int = Field(..., ge=40, le=200)
     binaural_freq: float = Field(..., ge=0.5, le=40.0, description="Beat frequency in Hz")
     ramp_duration_sec: float = Field(..., ge=0, le=300, description="Seconds to transition")
-    layer: Literal["binaural", "isochronic", "ambient"] = "binaural"
+    layer: Literal["binaural"] = "binaural"
 
 
 class ModulationSchedule(BaseModel):

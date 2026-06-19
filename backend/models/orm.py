@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text, func
+from sqlalchemy import Column, DateTime, Float, Integer, String, Text, func
 from sqlalchemy.orm import DeclarativeBase
 
 
@@ -7,7 +7,7 @@ class Base(DeclarativeBase):
 
 
 class User(Base):
-    """A registered user and their neurodiversity preferences."""
+    """A registered user and their preferences."""
 
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -15,15 +15,11 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
 
-    neurotype = Column(String(50), nullable=True)
-    user_preferences = Column(Text, nullable=True)
-
     created_at = Column(DateTime, server_default=func.now())
     last_active = Column(DateTime, server_default=func.now())
-    activity = Column(Boolean, nullable=True)
 
     def __repr__(self):
-        return f"<User(username={self.username}, email={self.email}, neurotype={self.neurotype})>"
+        return f"<User(username={self.username}, email={self.email})>"
 
 
 class Session(Base):
@@ -31,7 +27,9 @@ class Session(Base):
 
     __tablename__ = "sessions"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, nullable=True)  # nullable: sessions can be created without an authenticated user
+    user_id = Column(
+        Integer, nullable=True
+    )  # nullable: sessions can be created without an authenticated user
     intent = Column(String(100), nullable=False)
     schedule = Column(Text, nullable=False)  # JSON string
     duration_sec = Column(Integer, nullable=True)

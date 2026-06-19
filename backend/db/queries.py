@@ -14,17 +14,13 @@ class UserQueries:
         email: str,
         username: str,
         hashed_password: str,
-        neurotype: Optional[str] = None,
     ) -> User:
         user = User(
             email=email,
             username=username,
             hashed_password=hashed_password,
-            neurotype=neurotype,
-            user_preferences=None,
             created_at=datetime.now(timezone.utc),
             last_active=datetime.now(timezone.utc),
-            activity=True,
         )
         db.add(user)
         await db.commit()

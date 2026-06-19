@@ -71,7 +71,6 @@ async def register(req: UserCreate, db: AsyncSession = Depends(get_db)) -> APIRe
         email=req.email,
         username=req.username,
         hashed_password=hashed,
-        neurotype=req.neurotype.value if req.neurotype else None,
     )
 
     token = create_access_token({"sub": user.id})
@@ -120,7 +119,6 @@ async def me(current_user: User = Depends(get_current_user)) -> APIResponse:
             "id": current_user.id,
             "username": current_user.username,
             "email": current_user.email,
-            "neurotype": current_user.neurotype,
             "created_at": current_user.created_at.isoformat() if current_user.created_at else None,
             "last_active": current_user.last_active.isoformat()
             if current_user.last_active

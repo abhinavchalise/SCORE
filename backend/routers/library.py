@@ -23,9 +23,7 @@ MEDIA_TYPES = {
 
 
 @router.post("/scan", response_model=APIResponse)
-async def scan_library(
-    req: LibraryScanRequest, db: AsyncSession = Depends(get_db)
-) -> APIResponse:
+async def scan_library(req: LibraryScanRequest, db: AsyncSession = Depends(get_db)) -> APIResponse:
     """Scan a directory, analyze new audio files, and catalog them."""
     loop = asyncio.get_running_loop()
 

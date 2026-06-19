@@ -15,11 +15,11 @@ import {
 } from "@/stores/sessionSlice";
 
 const INTENTS = [
-  "Deep Focus - Coding",
-  "Deep Focus - Reading",
-  "Relaxation - Meditation",
-  "Relaxation - Wind Down",
-  "Sleep - Deep Rest",
+  { id: "deep_focus", label: "Deep Focus" },
+  { id: "light_focus", label: "Light Focus" },
+  { id: "creative_flow", label: "Creative Flow" },
+  { id: "calm", label: "Calm" },
+  { id: "sleep_aid", label: "Sleep" },
 ];
 
 const CARRIER_FREQ = 200; // Hz, base carrier for binaural beats
@@ -111,8 +111,8 @@ export default function Home() {
           className="bg-zinc-900 border border-zinc-700 rounded px-3 py-1.5 text-white"
         >
           {INTENTS.map((i) => (
-            <option key={i} value={i}>
-              {i}
+            <option key={i.id} value={i.id}>
+              {i.label}
             </option>
           ))}
         </select>
