@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "neurotune-backend"
+name = "score-engine"
 version = "0.1.0"
-description = "On-device LLM backend for NeuroTune adaptive focus-audio sessions"
+description = "On-device LLM backend for SCORE adaptive focus-audio sessions"
 requires-python = ">=3.10"
 
 # Compatible-release bounds; pin exact versions from a freeze before deploy.

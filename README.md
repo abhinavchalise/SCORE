@@ -1,60 +1,107 @@
-# NeuroTune
+# SCORE
 
-Generative focus music that runs entirely on your machine. Describe how you want to feel, and a local model composes a binaural-beat session and adapts it to your feedback.
+Generate focus and study music tailored to what you're doing, from an AI model that runs entirely on your own machine. No cloud, no telemetry.
 
-Private by design. No cloud, no telemetry.
+You pick a focus style, and a local language model composes a binaural-beat session (binaural beats: two slightly offset tones the ear blends into one steady pulse) that plays in your browser and is built to adapt to your feedback over time.
 
 ![status: active development](https://img.shields.io/badge/status-active%20development-yellow)
 
-_Active development. The core pipeline works end to end; rebuilding parts of the UI, adjusting llm integration alongside getting latency benchmarks and walkthroughs are still in progress._
+**Demo:** runs locally in a few commands; see [Run, Build, Test](#run-build-test).
 
 ---
 
-## Session Types
+## At a Glance
 
-Intent is sorted into a closed taxonomy. The selected type seeds the prompt and the schedule template.
+You choose a focus style (deep focus, light focus, sleep aid, and more), and SCORE generates a custom session of binaural-beat parameters that change over time to hold your attention. The session streams to your browser, plays instantly, and you can adjust any setting live.
 
-| Type          | You'd ask for             | Targets                  |
-| ------------- | ------------------------- | ------------------------ |
-| Deep focus    | "heads-down for an hour"  | Sustained concentration  |
-| Light focus   | "background while I read" | Low-distraction ambience |
-| Creative flow | "loosen up to brainstorm" | Relaxed, open attention  |
-| Calm          | "help me settle"          | Lowered arousal          |
-| Sleep aid     | "wind down for bed"       | Drift toward sleep       |
-| Custom        | anything off-taxonomy     | Free-form generation     |
+Everything runs locally: a 9B-parameter model on a consumer GPU, with every generated session checked for validity before it plays.
+
+**Status.** The core pipeline runs end to end: pick a style, a local model generates a validated session, and it plays in the browser. In progress: text intent understanding, retrieval of past sessions you rated well, and tighter server-side validation.
 
 ---
 
-## Why Local Inference
+## Architecture
 
-Cloud inference is the obvious path. NeuroTune deliberately does not take it.
+You choose an intent, which seeds a prompt for a local language model. The model returns a JSON session of binaural-beat parameters across time. The session is checked for schema, value ranges, and smooth transitions; anything invalid falls back to a safe per-intent preset. The valid session streams to the browser, where Tone.js plays it with smooth ramps, and your feedback feeds back into the examples that shape the next one.
 
-- **Privacy is the contract.** Session text describes how you feel and think, and never leaves the machine.
-- **Latency floor.** A hosted round-trip costs hundreds of milliseconds per generation, which a real-time audio path cannot absorb.
-- **Cost at scale.** Per-session cloud billing compounds; local inference is amortized hardware only.
-- **Offline by default.** Trains, planes, and dead zones still work.
-
-The tradeoff is a one-time model download and a few seconds of cold-start, accepted deliberately.
-
----
-
-## How It Works
-
-A typed intent is classified, matched against past sessions that worked, and turned into a validated JSON schedule of binaural-beat parameters that streams to the browser for synthesis.
-
-```
-intent → classify → retrieve similar sessions + render prompt
-       → constrained LLM → JSON schedule → validate (fallback on fail)
-       → WebSocket → Tone.js synthesis → feedback → example bank
+```mermaid
+flowchart LR
+    A[Intent] --> B[Classify]
+    B --> C[Retrieve examples]
+    C --> D[Local LLM]
+    D --> E{Valid?}
+    E -->|yes| F[Stream to browser]
+    E -->|no| G[Fallback]
+    G --> F
+    F --> H[Synthesize audio]
 ```
 
 ---
 
-## Model Strategy
+## Features
 
-The base model runs quantized with bitsandbytes (8-bit by default, 4-bit for tighter memory) inside the HuggingFace stack. Keeping inference in one stack leaves a direct path to QLoRA fine-tuning on session-feedback data, without standing up a second runtime before the data justifies it.
+**Intent-based sessions.** You pick a focus style (deep focus, light focus, creative flow, calm, sleep aid) and describe it in your own words. The choice seeds both the prompt and the session template. A small classifier sorts your input into the fixed set of styles and generates schedule based on intent.
 
-When raw on-device inference speed becomes the priority, the planned step is exporting to GGUF and serving through llama.cpp. A deliberate later optimization, not a day-one dependency.
+**Real-time control.** Beat frequency, tempo, and audio layers ramp smoothly across each step of the session, and you can override any slider while it plays. Tone.js ramps every parameter on the client so nothing jumps abruptly.
+
+**Learns from your feedback.** Sessions you rate well are designed to bias the next generation as examples, improving results rather than retraining the model.
+
+**Validated output.** Every session is checked against a fixed schema and value ranges before it plays. Constrained decoding will bound the JSON as the model generates it, and a per-intent fallback catches anything invalid.
+
+---
+
+## Key Decisions and Tradeoffs
+
+| Decision | Why | Alternative rejected |
+|---|---|---|
+| Local inference, not a cloud API | Session text describes how you feel and think so it should not leave your machine. Cloud also adds a latency floor and per-session cost. | Hosted API (forces telemetry by default, 200-800 ms network latency floor, unnecessary cost at session scale) |
+| Fixed set of session styles | Canonical labels keep accuracy meaningful and give the fallback concrete targets | Open-set classification by similarity |
+| Retrieval before fine-tuning | Cheapest signal that compounds with use: no training cost, no GPU, improvement at generation time | LoRA fine-tuning (data to be added) |
+| Constrained decoding | Bounds the JSON structure as the model generates, removing the malformed-output retry path | Generate then validate-and-retry (adds a latency tail and a failure path) |
+| 8-bit quantization on the HuggingFace stack | Output is JSON, so quantization noise becomes a validation error, not slightly worse meaning since the same stack hosts fine-tuning later |
+
+---
+
+## Designed for Focus
+
+The focus-first design is enforced in code, not left to the model:
+
+- **Smooth transitions.** No parameter jumps more than 20% of its range per second
+- **You stay in control.** Sliders override the model in real time, and each edit becomes a feedback signal.
+- **Instant stop.** A keyboard shortcut and a large button stop audio with no confirmation dialog, so sensory overwhelm is never trapped behind a multi-step flow.
+
+---
+
+## Run, Build, Test
+
+**Requires:** Python 3.10+, Node 20+, 16 GB RAM. A CUDA GPU or Apple Silicon is recommended. Docker optional. The model downloads on first backend run which will be several gigabytes.
+
+```bash
+git clone https://github.com/Abhi6310/SCORE.git
+cd SCORE
+
+# backend
+python -m venv .venv && source .venv/bin/activate
+pip install -e ./backend
+
+# frontend (separate terminal)
+cd frontend && npm install
+
+# optional: MySQL via Docker
+docker compose up -d
+```
+
+Run both servers in separate terminals:
+
+```bash
+# terminal 1: backend (downloads the model on first run)
+source .venv/bin/activate && python backend/main.py
+
+# terminal 2: frontend
+cd frontend && npm run dev  #http://localhost:3000
+```
+
+Configuration lives in `backend/config.py`, overridable via a project-root `.env`:
 
 ---
 
@@ -64,52 +111,38 @@ When raw on-device inference speed becomes the priority, the planned step is exp
 
 **Backend:** Python 3.10+, FastAPI, async SQLAlchemy, Pydantic, WebSocket
 
-**ML:** HuggingFace Transformers, sentence-transformers, outlines (constrained decoding), librosa
+**ML:** HuggingFace Transformers, sentence-transformers, outlines (constrained decoding), librosa. The model runs quantized with bitsandbytes (`8bit` by default, `4bit` for tighter memory), which keeps a direct path to fine-tuning on feedback data later without a second runtime.
 
 **Storage:** SQLite by default; MySQL via Docker for development
 
 ---
 
-## Running Locally
+## Known Limitations
 
-A CUDA GPU or Apple Silicon is strongly recommended; CPU-only inference is slow. The LLM (several GB) downloads on first backend run. Requires Python 3.10+, Node 20+, and ~16 GB RAM.
-
-```bash
-# backend
-python -m venv .venv && source .venv/bin/activate
-pip install -r backend/requirements.txt
-python backend/main.py            # http://localhost:8000  
-
-# frontend (separate terminal)
-cd frontend && npm install && npm run dev   # http://localhost:3000
-```
-
-Configuration lives in `backend/config.py`, overridable via a project-root `.env`. SQLite is the default store; MySQL is available with `docker compose up -d`. The settings most likely to matter:
-
-| Variable       | Default                              | Why you'd change it                          |
-| -------------- | ------------------------------------ | -------------------------------------------- |
-| `HF_MODEL_ID`  | `Qwen/Qwen3.5-9B-Instruct`           | Swap the local model                         |
-| `QUANTIZATION` | `8bit`                               | Lower to `4bit` to cut memory; `none` for full fp16 |
-| `DATABASE_URL` | `sqlite+aiosqlite:///./neurotune.db` | Point at MySQL instead of SQLite             |
+- **Single-user, local deployment by design.** No multi-tenant serving and no hosted endpoint; the on-device story is the point.
+- **Adaptation ships as retrieval first**, and the system is not yet benchmarked. Classifier retraining and preference tuning are deferred until the retrieval signal plateaus.
 
 ---
 
 ## Project Structure
 
 ```
-backend/
-  nlp/            intent classifier, prompt templates, example bank, validators, fallback
-  llm_engine/     model loading, constrained-decoding wrapper, latency instrumentation
-  audio_processor/ librosa track analysis
-  routers/        REST + WebSocket endpoints
-  models/         ORM + Pydantic schemas
-  db/             async engine, session factory, queries
-frontend/src/
-  app/            Next.js routes (onboarding, session, history, settings)
-  lib/            Tone.js synth, REST + WebSocket clients
-  stores/         Redux Toolkit slices
+SCORE/
+├── backend/
+│   ├── nlp/             prompt classifiers, templates, validators
+│   ├── llm_engine/      llm model and decoding
+│   ├── audio_processor/ librosa-driven track analysis
+│   ├── routers/         REST + WebSocket endpoints
+│   ├── models/          ORM + Pydantic schemas
+│   ├── db/              async session engine
+│   └── config.py
+├── frontend/src/
+│   ├── app/             Next.js routes
+│   ├── lib/             Tone.js synth, REST + WebSocket clients
+│   └── stores/          Redux Toolkit slices
+└── docker-compose.yml
 ```
 
 ---
 
-MIT License In Progress
+MIT License

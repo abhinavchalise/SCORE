@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -6,9 +8,9 @@ class Settings(BaseSettings):
         env_file=".env", env_file_encoding="utf-8", protected_namespaces=("model_",)
     )
 
-    api_title: str = "Neurotune API"
+    api_title: str = "SCORE API"
     api_version: str = "1.0.0"
-    api_description: str = "Personalized Brain Stimulating API"
+    api_description: str = "Local LLM backend that generates validated binaural-beat audio schedules from typed intent"
 
     host: str = "127.0.0.1"
     port: int = 8000
@@ -18,12 +20,13 @@ class Settings(BaseSettings):
     secret_key: str
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
-    database_url: str = "sqlite+aiosqlite:///./neurotune.db"
+    database_url: str = "sqlite+aiosqlite:///./score.db"
 
     hf_model_id: str = "Qwen/Qwen3.5-9B-Instruct"
-    quantization: str = "8bit"
+    quantization: Literal["8bit", "4bit", "none"] = "8bit"
     llm_max_new_tokens: int = 2048
     llm_temperature: float = 0.6
+    llm_top_p: float = 0.95
     llm_timeout_seconds: int = 15
 
 

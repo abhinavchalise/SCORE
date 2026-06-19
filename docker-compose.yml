@@ -1,12 +1,12 @@
 services:
   mysql:
     image: mysql:8.0
-    container_name: neurotune-mysql
+    container_name: score-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: neurotune_root
-      MYSQL_DATABASE: neurotune
-      MYSQL_USER: neurotune
-      MYSQL_PASSWORD: neurotune_dev
+      MYSQL_ROOT_PASSWORD: score_root
+      MYSQL_DATABASE: score
+      MYSQL_USER: score
+      MYSQL_PASSWORD: score_dev
     ports:
       - "3306:3306"
     volumes:
