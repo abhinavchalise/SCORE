@@ -8,7 +8,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.config import settings
 from backend.db.database import get_db
-from backend.db.queries import UserQueries
+from backend.db.queries import (
+    create_user,
+    get_user_by_email,
+    get_user_by_id,
+    get_user_by_username,
+    update_user_last_active,
+)
 from backend.models.orm import User
 from backend.models.schemas import APIResponse, LoginRequest, UserCreate
 
@@ -36,7 +42,6 @@ def create_access_token(data: dict) -> str:
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)
 ) -> User:
-    """Decode the JWT and return the user; raises 401 on any failure."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid or expired token",
@@ -50,7 +55,7 @@ async def get_current_user(
     except JWTError:
         raise credentials_exception
 
-    user = await UserQueries.get_by_id(db, user_id)
+    user = await get_user_by_id(db, user_id)
     if user is None:
         raise credentials_exception
     return user
@@ -58,15 +63,14 @@ async def get_current_user(
 
 @router.post("/register", response_model=APIResponse)
 async def register(req: UserCreate, db: AsyncSession = Depends(get_db)) -> APIResponse:
-    """Register a new user and return an access token."""
-    if await UserQueries.get_by_email(db, req.email):
+    if await get_user_by_email(db, req.email):
         raise HTTPException(status_code=409, detail="Email already registered")
 
-    if await UserQueries.get_by_username(db, req.username):
+    if await get_user_by_username(db, req.username):
         raise HTTPException(status_code=409, detail="Username already taken")
 
     hashed = hash_password(req.password)
-    user = await UserQueries.create_user(
+    user = await create_user(
         db,
         email=req.email,
         username=req.username,
@@ -87,15 +91,14 @@ async def register(req: UserCreate, db: AsyncSession = Depends(get_db)) -> APIRe
 
 @router.post("/login", response_model=APIResponse)
 async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)) -> APIResponse:
-    """Authenticate by email and password and return an access token."""
-    user = await UserQueries.get_by_email(db, req.email)
+    user = await get_user_by_email(db, req.email)
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     if not verify_password(req.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    await UserQueries.update_last_active(db, user.id)
+    await update_user_last_active(db, user.id)
 
     token = create_access_token({"sub": user.id})
     return APIResponse(
@@ -111,7 +114,6 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)) -> APIRes
 
 @router.get("/me", response_model=APIResponse)
 async def me(current_user: User = Depends(get_current_user)) -> APIResponse:
-    """Return the authenticated user's profile."""
     return APIResponse(
         success=True,
         message="Current user",

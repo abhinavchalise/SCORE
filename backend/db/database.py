@@ -13,7 +13,6 @@ async_session_factory = async_sessionmaker(engine, class_=AsyncSession, expire_o
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    """Yield a session, committing on success and rolling back on error."""
     async with async_session_factory() as session:
         try:
             yield session

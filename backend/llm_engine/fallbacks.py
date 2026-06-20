@@ -116,6 +116,5 @@ INTENT_FALLBACKS = {
 
 
 def get_fallback_schedule(intent: str, duration_minutes: int = 25) -> ModulationSchedule:
-    """Return a safe hardcoded schedule for the intent, labeled with that intent."""
     key = INTENT_FALLBACKS.get(intent, "deep_focus")
     return FALLBACK_SCHEDULES[key].model_copy(update={"intent": intent})

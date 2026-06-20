@@ -19,15 +19,12 @@ MAX_RETRIES = 2
 
 
 class LLMEngine:
-    """Loads a local causal-LM and turns intents into modulation schedules."""
-
     def __init__(self) -> None:
         self.model = None
         self.tokenizer = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     async def load(self) -> None:
-        """Load the model off the event loop so startup isn't blocked."""
         logger.info("Loading %s on %s", settings.hf_model_id, self.device)
         start = time.time()
 
@@ -51,7 +48,6 @@ class LLMEngine:
         self.model = AutoModelForCausalLM.from_pretrained(settings.hf_model_id, **model_kwargs)
 
     def generate_schedule(self, intent: str, duration_minutes: int = 25) -> ModulationSchedule:
-        """Generate a schedule, retrying on malformed output and falling back if needed."""
         prompt = build_schedule_prompt(intent, duration_minutes)
 
         messages = [{"role": "user", "content": prompt}]

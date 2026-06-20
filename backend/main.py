@@ -64,7 +64,6 @@ app.include_router(sessions_router)
 
 @app.get("/", response_model=APIResponse)
 async def root() -> APIResponse:
-    """Basic liveness check."""
     return APIResponse(
         success=True,
         message="API running",
@@ -74,7 +73,6 @@ async def root() -> APIResponse:
 
 @app.get("/health", response_model=APIResponse)
 async def health_check(db: AsyncSession = Depends(get_db)) -> APIResponse:
-    """Report API and database health."""
     try:
         await db.execute(text("SELECT 1"))
         db_status = "connected"

@@ -1,16 +1,15 @@
+from datetime import datetime
 from typing import Any, Dict, List, Literal, Optional
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
-# Response schema
 class APIResponse(BaseModel):
     success: bool
     message: str
     data: Optional[Dict[str, Any]] = None
 
 
-# User schemas
 class UserBase(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=3, max_length=50)
@@ -20,7 +19,6 @@ class UserCreate(UserBase):
     password: str = Field(..., min_length=8)
 
 
-# Intent taxonomy
 INTENTS = [
     "deep_focus",
     "light_focus",
@@ -31,7 +29,6 @@ INTENTS = [
 ]
 
 
-# LLM schemas
 class ModulationStep(BaseModel):
     timestamp_sec: float = Field(..., ge=0, description="Seconds from session start")
     target_bpm: int = Field(..., ge=40, le=200)
@@ -46,18 +43,66 @@ class ModulationSchedule(BaseModel):
     steps: List[ModulationStep] = Field(..., min_length=1, max_length=20)
 
 
-# Session request schemas
 class SessionStartRequest(BaseModel):
     intent: str = Field(..., min_length=1, max_length=100)
     duration_minutes: int = Field(25, ge=1, le=120)
 
 
-# Auth schemas
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str = Field(..., min_length=8)
 
 
-# Library schemas
 class LibraryScanRequest(BaseModel):
     directory_path: str = Field(..., min_length=1)
+
+
+FeedbackKind = Literal["skip", "edit", "rating", "completion"]
+
+
+class FeedbackEventCreate(BaseModel):
+    session_id: int
+    kind: FeedbackKind
+    payload: Dict[str, Any] = Field(default_factory=dict)
+
+
+class FeedbackEventRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    session_id: int
+    kind: str
+    payload: Dict[str, Any]
+    at: datetime
+
+
+class ExampleBankEntryCreate(BaseModel):
+    intent: str
+    schedule_json: Dict[str, Any]
+    rating: int = Field(..., ge=1, le=5)
+    completion_pct: float = Field(..., ge=0, le=100)
+    embedding: List[float]
+
+
+class ExampleBankEntryRead(ExampleBankEntryCreate):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    added_at: datetime
+
+
+class PromptVersionCreate(BaseModel):
+    intent: str
+    template: str
+    active: bool = False
+
+
+class PromptVersionRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    intent: str
+    template: str
+    hash: str
+    active: bool
+    created_at: datetime

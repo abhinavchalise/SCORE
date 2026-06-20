@@ -5,7 +5,6 @@ from backend.models.schemas import ModulationSchedule
 
 
 def strip_think_tags(text: str) -> str:
-    """Remove <think>...</think> reasoning blocks emitted by thinking-capable models."""
     return re.sub(r"<think>.*?</think>", "", text, flags=re.DOTALL).strip()
 
 
@@ -26,7 +25,6 @@ def extract_json(text: str) -> str:
 
 
 def parse_llm_response(raw_output: str) -> ModulationSchedule:
-    """Clean, extract, and validate raw output into a ModulationSchedule."""
     cleaned = strip_think_tags(raw_output)
     json_str = extract_json(cleaned)
     data = json.loads(json_str)

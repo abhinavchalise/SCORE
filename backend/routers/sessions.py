@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.config import settings
 from backend.db.database import get_db
-from backend.db.queries import SessionQueries
+from backend.db.queries import create_session
 from backend.llm_engine.client import llm_engine
 from backend.models.schemas import APIResponse, SessionStartRequest
 
@@ -16,8 +16,6 @@ router = APIRouter(prefix="/sessions", tags=["sessions"])
 async def start_session(
     req: SessionStartRequest, db: AsyncSession = Depends(get_db)
 ) -> APIResponse:
-    """Generate a modulation schedule for the intent and persist the session."""
-    # Run LLM inference in a thread executor to avoid blocking the event loop
     loop = asyncio.get_running_loop()
     schedule = await asyncio.wait_for(
         loop.run_in_executor(
@@ -29,7 +27,7 @@ async def start_session(
         timeout=settings.llm_timeout_seconds,
     )
 
-    session_record = await SessionQueries.create_session(
+    session_record = await create_session(
         db,
         intent=req.intent,
         schedule=schedule.model_dump_json(),
