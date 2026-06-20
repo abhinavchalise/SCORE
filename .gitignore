@@ -35,7 +35,8 @@ Thumbs.db
 *.swp
 *.swo
 
-# Audio library (user files, don't track)
+# Library/User files
+logs/
 local_library/
 
 # ML models
