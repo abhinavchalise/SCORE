@@ -14,7 +14,7 @@ You pick a focus style, and a local language model composes a binaural-beat sess
 
 You choose a focus style (deep focus, light focus, sleep aid, and more), and SCORE generates a custom session of binaural-beat parameters that change over time to hold your attention. The session streams to your browser, plays instantly, and you can adjust any setting live.
 
-Everything runs locally: a 9B-parameter model on a consumer GPU, with every generated session checked for validity before it plays.
+Everything runs locally: an 8B-parameter model on a consumer GPU, with every generated session checked for validity before it plays.
 
 **Status.** The core pipeline runs end to end: pick a style, a local model generates a validated session, and it plays in the browser. In progress: text intent understanding, retrieval of past sessions you rated well, and tighter server-side validation.
 

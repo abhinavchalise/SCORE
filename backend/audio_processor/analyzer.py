@@ -11,14 +11,14 @@ PITCH_CLASSES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
 
 def analyze_track(file_path: str) -> dict:
     try:
-        y, sr = librosa.load(file_path, sr=22050)
+        audio_samples, sample_rate = librosa.load(file_path, sr=22050)
     except Exception:
         logger.warning("librosa failed to load %s", file_path, exc_info=True)
         return {"duration_sec": None, "bpm": None, "key_signature": None}
 
-    duration_sec = float(librosa.get_duration(y=y, sr=sr))
-    bpm = _extract_bpm(y, sr)
-    key_signature = _extract_key(y, sr)
+    duration_sec = float(librosa.get_duration(y=audio_samples, sr=sample_rate))
+    bpm = _extract_bpm(audio_samples, sample_rate)
+    key_signature = _extract_key(audio_samples, sample_rate)
 
     return {
         "duration_sec": duration_sec,
@@ -27,9 +27,9 @@ def analyze_track(file_path: str) -> dict:
     }
 
 
-def _extract_bpm(y: np.ndarray, sr: int) -> Optional[float]:
+def _extract_bpm(audio_samples: np.ndarray, sample_rate: int) -> Optional[float]:
     try:
-        tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+        tempo, _ = librosa.beat.beat_track(y=audio_samples, sr=sample_rate)
         # librosa >= 0.10 returns an array
         if hasattr(tempo, "__len__"):
             return float(tempo[0])
@@ -39,9 +39,9 @@ def _extract_bpm(y: np.ndarray, sr: int) -> Optional[float]:
         return None
 
 
-def _extract_key(y: np.ndarray, sr: int) -> Optional[str]:
+def _extract_key(audio_samples: np.ndarray, sample_rate: int) -> Optional[str]:
     try:
-        chroma = librosa.feature.chroma_cqt(y=y, sr=sr)
+        chroma = librosa.feature.chroma_cqt(y=audio_samples, sr=sample_rate)
         chroma_mean = np.mean(chroma, axis=1)
         key_index = int(np.argmax(chroma_mean))
         return PITCH_CLASSES[key_index]

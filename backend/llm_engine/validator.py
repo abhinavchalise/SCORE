@@ -11,12 +11,12 @@ def strip_think_tags(text: str) -> str:
 def extract_json(text: str) -> str:
     depth = 0
     start_idx = None
-    for i, ch in enumerate(text):
-        if ch == "{":
+    for i, character in enumerate(text):
+        if character == "{":
             if depth == 0:
                 start_idx = i
             depth += 1
-        elif ch == "}":
+        elif character == "}":
             depth -= 1
             if depth == 0 and start_idx is not None:
                 return text[start_idx : i + 1]

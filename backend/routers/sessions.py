@@ -1,13 +1,12 @@
-import asyncio
+import json
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.config import settings
 from backend.db.database import get_db
 from backend.db.queries import create_session
-from backend.llm_engine.client import llm_engine
 from backend.models.schemas import APIResponse, SessionStartRequest
+from backend.nlp import run_pipeline
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
@@ -16,22 +15,13 @@ router = APIRouter(prefix="/sessions", tags=["sessions"])
 async def start_session(
     req: SessionStartRequest, db: AsyncSession = Depends(get_db)
 ) -> APIResponse:
-    loop = asyncio.get_running_loop()
-    schedule = await asyncio.wait_for(
-        loop.run_in_executor(
-            None,
-            llm_engine.generate_schedule,
-            req.intent,
-            req.duration_minutes,
-        ),
-        timeout=settings.llm_timeout_seconds,
-    )
+    result = await run_pipeline(req.intent, db)
 
     session_record = await create_session(
         db,
-        intent=req.intent,
-        schedule=schedule.model_dump_json(),
-        duration_sec=schedule.total_duration_sec,
+        intent=result.intent,
+        schedule=json.dumps(result.schedule),
+        duration_sec=result.schedule["total_duration_sec"],
     )
 
     return APIResponse(
@@ -39,6 +29,8 @@ async def start_session(
         message="Session started",
         data={
             "session_id": session_record.id,
-            "schedule": schedule.model_dump(),
+            "schedule": result.schedule,
+            "intent": result.intent,
+            "used_fallback": result.used_fallback,
         },
     )

@@ -1,0 +1,250 @@
+{"text": "help me focus deeply", "intent": "deep_focus"}
+{"text": "I need to lock in for a hard exam", "intent": "deep_focus"}
+{"text": "deep work session please", "intent": "deep_focus"}
+{"text": "gotta grind on this coding problem", "intent": "deep_focus"}
+{"text": "intense concentration for the next two hours", "intent": "deep_focus"}
+{"text": "studying for finals, need zero distractions", "intent": "deep_focus"}
+{"text": "put me in the zone for math", "intent": "deep_focus"}
+{"text": "focuss really hard pls", "intent": "deep_focus"}
+{"text": "I have to write my thesis chapter now", "intent": "deep_focus"}
+{"text": "crunch mode, big deadline tomorrow", "intent": "deep_focus"}
+{"text": "need laser focus on debugging", "intent": "deep_focus"}
+{"text": "deep focus for reading dense papers", "intent": "deep_focus"}
+{"text": "lock me in, no interruptions", "intent": "deep_focus"}
+{"text": "heads down work for the report", "intent": "deep_focus"}
+{"text": "maximum concentration mode", "intent": "deep_focus"}
+{"text": "I'm cramming, make it intense", "intent": "deep_focus"}
+{"text": "flow state for serious coding", "intent": "deep_focus"}
+{"text": "need to power through this whole problem set", "intent": "deep_focus"}
+{"text": "tunnel vision on the spreadsheet", "intent": "deep_focus"}
+{"text": "hardcore study session, lets go", "intent": "deep_focus"}
+{"text": "concentrate fully on the contract review", "intent": "deep_focus"}
+{"text": "deeep focus, exam in 3 hrs!!!", "intent": "deep_focus"}
+{"text": "I must finish this proof, no breaks", "intent": "deep_focus"}
+{"text": "give me beta waves for tough analysis", "intent": "deep_focus"}
+{"text": "need to memorize a ton fast", "intent": "deep_focus"}
+{"text": "serious focus for the leetcode grind", "intent": "deep_focus"}
+{"text": "block everything out, writing code", "intent": "deep_focus"}
+{"text": "intense deep work for research", "intent": "deep_focus"}
+{"text": "help me concentrate on studying chemistry", "intent": "deep_focus"}
+{"text": "need to be fully dialed in", "intent": "deep_focus"}
+{"text": "deadline panic, focus me up", "intent": "deep_focus"}
+{"text": "zero distraction zone for essays", "intent": "deep_focus"}
+{"text": "focus hard, big presentation prep", "intent": "deep_focus"}
+{"text": "I need to absorb this textbook chapter", "intent": "deep_focus"}
+{"text": "put my brain in overdrive for work", "intent": "deep_focus"}
+{"text": "concentrate on the financial model", "intent": "deep_focus"}
+{"text": "need to stay sharp for hours of coding", "intent": "deep_focus"}
+{"text": "study mode maximum intensity", "intent": "deep_focus"}
+{"text": "lock in for the bar exam prep", "intent": "deep_focus"}
+{"text": "help me do deep analytical thinking", "intent": "deep_focus"}
+{"text": "need unbroken focus on the dataset", "intent": "deep_focus"}
+{"text": "grinding through documentation, focus me", "intent": "deep_focus"}
+{"text": "intense focus for solving equations", "intent": "deep_focus"}
+{"text": "I have to nail this take home assignment", "intent": "deep_focus"}
+{"text": "brain on full power for studying", "intent": "deep_focus"}
+{"text": "need to think really hard right now", "intent": "deep_focus"}
+{"text": "deep concentration for legal drafting", "intent": "deep_focus"}
+{"text": "focus session for the whole afternoon", "intent": "deep_focus"}
+{"text": "get me in deep work for the algorithm", "intent": "deep_focus"}
+{"text": "heavy focus, no phone, just the code", "intent": "deep_focus"}
+{"text": "light focus for answering emails", "intent": "light_focus"}
+{"text": "need gentle concentration for admin work", "intent": "light_focus"}
+{"text": "easy focus while I tidy my notes", "intent": "light_focus"}
+{"text": "background focus for routine tasks", "intent": "light_focus"}
+{"text": "just a little focus for paperwork", "intent": "light_focus"}
+{"text": "soft concentration for reading articles", "intent": "light_focus"}
+{"text": "light work session, nothing heavy", "intent": "light_focus"}
+{"text": "casual focus for organizing my inbox", "intent": "light_focus"}
+{"text": "mild focus to get through chores", "intent": "light_focus"}
+{"text": "help me stay lightly on task", "intent": "light_focus"}
+{"text": "gentle focus for journaling", "intent": "light_focus"}
+{"text": "light focus for browsing research", "intent": "light_focus"}
+{"text": "easygoing concentration for planning my week", "intent": "light_focus"}
+{"text": "low key focus for editing a doc", "intent": "light_focus"}
+{"text": "need to stay loosely focused on emails", "intent": "light_focus"}
+{"text": "relaxed focus for sketching ideas", "intent": "light_focus"}
+{"text": "light focus, just some light reading", "intent": "light_focus"}
+{"text": "soft work mode for my to do list", "intent": "light_focus"}
+{"text": "casual concentration while I sort files", "intent": "light_focus"}
+{"text": "a bit of focus for replying to messages", "intent": "light_focus"}
+{"text": "light study, just reviewing flashcards", "intent": "light_focus"}
+{"text": "gentle focus for filling out forms", "intent": "light_focus"}
+{"text": "easy focus for light note taking", "intent": "light_focus"}
+{"text": "lite focuss for emailz lol", "intent": "light_focus"}
+{"text": "mellow focus for catching up on slack", "intent": "light_focus"}
+{"text": "light concentration for proofreading", "intent": "light_focus"}
+{"text": "keep me gently on task for chores", "intent": "light_focus"}
+{"text": "soft focus for a calm work block", "intent": "light_focus"}
+{"text": "light focus while sipping coffee", "intent": "light_focus"}
+{"text": "unhurried focus for tidying my desk", "intent": "light_focus"}
+{"text": "low intensity focus for reading news", "intent": "light_focus"}
+{"text": "light work vibe for outlining", "intent": "light_focus"}
+{"text": "gentle attention for budgeting", "intent": "light_focus"}
+{"text": "need light focus for casual meeting prep", "intent": "light_focus"}
+{"text": "easy concentration for updating my calendar", "intent": "light_focus"}
+{"text": "soft focus for some light coding", "intent": "light_focus"}
+{"text": "relaxed work session, low pressure", "intent": "light_focus"}
+{"text": "light focus to skim a few chapters", "intent": "light_focus"}
+{"text": "just enough focus to finish small tasks", "intent": "light_focus"}
+{"text": "mild concentration for sorting photos", "intent": "light_focus"}
+{"text": "light focus for a chill study review", "intent": "light_focus"}
+{"text": "gentle focus while folding laundry", "intent": "light_focus"}
+{"text": "casual focus for writing a short note", "intent": "light_focus"}
+{"text": "light brain mode for errands planning", "intent": "light_focus"}
+{"text": "soft steady focus for light reading", "intent": "light_focus"}
+{"text": "easy going focus for a slow afternoon", "intent": "light_focus"}
+{"text": "light focus, keep it breezy", "intent": "light_focus"}
+{"text": "low key concentration for emails and tea", "intent": "light_focus"}
+{"text": "gentle focus for a relaxed task list", "intent": "light_focus"}
+{"text": "light sustainable focus for the morning", "intent": "light_focus"}
+{"text": "creative flow for brainstorming", "intent": "creative_flow"}
+{"text": "help me get into a creative groove", "intent": "creative_flow"}
+{"text": "ideation session for new product ideas", "intent": "creative_flow"}
+{"text": "flow state for songwriting", "intent": "creative_flow"}
+{"text": "need creative energy for painting", "intent": "creative_flow"}
+{"text": "get my imagination going for a story", "intent": "creative_flow"}
+{"text": "brainstorm mode, let ideas flow", "intent": "creative_flow"}
+{"text": "creative flow for designing a logo", "intent": "creative_flow"}
+{"text": "open my mind for poetry", "intent": "creative_flow"}
+{"text": "flow for free writing", "intent": "creative_flow"}
+{"text": "creative vibes for sketching characters", "intent": "creative_flow"}
+{"text": "help me think outside the box", "intent": "creative_flow"}
+{"text": "idea generation for my startup", "intent": "creative_flow"}
+{"text": "creative flow for composing music", "intent": "creative_flow"}
+{"text": "loosen up my brain for art", "intent": "creative_flow"}
+{"text": "need associative thinking for a screenplay", "intent": "creative_flow"}
+{"text": "creative groove for choreography", "intent": "creative_flow"}
+{"text": "brainstorming new marketing angles", "intent": "creative_flow"}
+{"text": "flowy creative state for doodling", "intent": "creative_flow"}
+{"text": "get me dreaming up concepts", "intent": "creative_flow"}
+{"text": "creative flow for worldbuilding", "intent": "creative_flow"}
+{"text": "imaginative mode for game design", "intent": "creative_flow"}
+{"text": "help me riff on melodies", "intent": "creative_flow"}
+{"text": "creative spark for writing lyrics", "intent": "creative_flow"}
+{"text": "flow for improv and jamming", "intent": "creative_flow"}
+{"text": "open creative headspace for journaling ideas", "intent": "creative_flow"}
+{"text": "brainstorm session, no judgment", "intent": "creative_flow"}
+{"text": "creative flow for photography concepts", "intent": "creative_flow"}
+{"text": "let my ideas wander freely", "intent": "creative_flow"}
+{"text": "creativ flow pls for my novel", "intent": "creative_flow"}
+{"text": "need a flow state for ux ideation", "intent": "creative_flow"}
+{"text": "creative energy for making collages", "intent": "creative_flow"}
+{"text": "imaginative flow for a comic strip", "intent": "creative_flow"}
+{"text": "help me invent a new recipe", "intent": "creative_flow"}
+{"text": "creative groove for interior design ideas", "intent": "creative_flow"}
+{"text": "flow for abstract painting", "intent": "creative_flow"}
+{"text": "brainstorm wild ideas for the pitch", "intent": "creative_flow"}
+{"text": "creative flow for crafting a poem", "intent": "creative_flow"}
+{"text": "dreamy creative state for animation", "intent": "creative_flow"}
+{"text": "spark my creativity for a mural", "intent": "creative_flow"}
+{"text": "flow for generating blog topics", "intent": "creative_flow"}
+{"text": "creative mind for inventing gadgets", "intent": "creative_flow"}
+{"text": "loosen up for some experimental writing", "intent": "creative_flow"}
+{"text": "flowy ideation for branding", "intent": "creative_flow"}
+{"text": "creative flow for making beats", "intent": "creative_flow"}
+{"text": "help me daydream up a plot twist", "intent": "creative_flow"}
+{"text": "open and creative for art journaling", "intent": "creative_flow"}
+{"text": "brainstorm freely for the hackathon", "intent": "creative_flow"}
+{"text": "creative flow for a fashion sketch", "intent": "creative_flow"}
+{"text": "imaginative flow for writing a song", "intent": "creative_flow"}
+{"text": "help me calm down", "intent": "calm"}
+{"text": "need to relax after a stressful day", "intent": "calm"}
+{"text": "soothe my nerves please", "intent": "calm"}
+{"text": "wind down and de stress", "intent": "calm"}
+{"text": "calm my anxiety", "intent": "calm"}
+{"text": "settle my racing mind", "intent": "calm"}
+{"text": "I feel overwhelmed, help me relax", "intent": "calm"}
+{"text": "gentle calm for a tea break", "intent": "calm"}
+{"text": "ease my tension", "intent": "calm"}
+{"text": "relax me, I'm stressed out", "intent": "calm"}
+{"text": "calm vibes to unwind", "intent": "calm"}
+{"text": "help me decompress after work", "intent": "calm"}
+{"text": "quiet my busy thoughts", "intent": "calm"}
+{"text": "need to feel peaceful", "intent": "calm"}
+{"text": "lower my stress levels", "intent": "calm"}
+{"text": "calm down before a meeting", "intent": "calm"}
+{"text": "soothing session to relax", "intent": "calm"}
+{"text": "help me let go of the tension", "intent": "calm"}
+{"text": "calm my breathing", "intent": "calm"}
+{"text": "just want to chill and relax", "intent": "calm"}
+{"text": "ease my anxious feelings", "intent": "calm"}
+{"text": "calm me down im so stressd", "intent": "calm"}
+{"text": "relax my shoulders and mind", "intent": "calm"}
+{"text": "mellow out after a long day", "intent": "calm"}
+{"text": "find some inner peace", "intent": "calm"}
+{"text": "calm space to recover", "intent": "calm"}
+{"text": "help me slow down and breathe", "intent": "calm"}
+{"text": "relax before a hard conversation", "intent": "calm"}
+{"text": "de stress and feel grounded", "intent": "calm"}
+{"text": "soft calm to ease worry", "intent": "calm"}
+{"text": "calm my mind for a moment", "intent": "calm"}
+{"text": "need a peaceful reset", "intent": "calm"}
+{"text": "unwind from the chaos", "intent": "calm"}
+{"text": "settle down and feel safe", "intent": "calm"}
+{"text": "calm for after a panic moment", "intent": "calm"}
+{"text": "relax and release the pressure", "intent": "calm"}
+{"text": "gentle soothing to feel better", "intent": "calm"}
+{"text": "quiet calm for self care", "intent": "calm"}
+{"text": "ease me into a relaxed state", "intent": "calm"}
+{"text": "calm me, too much going on", "intent": "calm"}
+{"text": "relax my tense body", "intent": "calm"}
+{"text": "need tranquility right now", "intent": "calm"}
+{"text": "calming vibes to ease worry", "intent": "calm"}
+{"text": "help me feel serene", "intent": "calm"}
+{"text": "slow my heart rate, calm me", "intent": "calm"}
+{"text": "peaceful break from the noise", "intent": "calm"}
+{"text": "soothe my overstimulated brain", "intent": "calm"}
+{"text": "calm and steady, please", "intent": "calm"}
+{"text": "relax my mind after studying", "intent": "calm"}
+{"text": "gentle calm to reset my mood", "intent": "calm"}
+{"text": "help me fall asleep", "intent": "sleep_aid"}
+{"text": "need to drift off to sleep", "intent": "sleep_aid"}
+{"text": "bedtime wind down for sleep", "intent": "sleep_aid"}
+{"text": "cant sleep, help me doze off", "intent": "sleep_aid"}
+{"text": "sleep aid for insomnia", "intent": "sleep_aid"}
+{"text": "lull me to sleep", "intent": "sleep_aid"}
+{"text": "I want to sleep deeply tonight", "intent": "sleep_aid"}
+{"text": "gentle sounds to fall asleep", "intent": "sleep_aid"}
+{"text": "help me get sleepy", "intent": "sleep_aid"}
+{"text": "drift into a deep sleep", "intent": "sleep_aid"}
+{"text": "need to nap for an hour", "intent": "sleep_aid"}
+{"text": "sleepy time, ease me down", "intent": "sleep_aid"}
+{"text": "soothe me into sleep", "intent": "sleep_aid"}
+{"text": "cant fall asleep, my mind wont stop", "intent": "sleep_aid"}
+{"text": "help me sleep through the night", "intent": "sleep_aid"}
+{"text": "bedtime relaxation for sleep", "intent": "sleep_aid"}
+{"text": "ease me into slumber", "intent": "sleep_aid"}
+{"text": "need delta waves for deep sleep", "intent": "sleep_aid"}
+{"text": "wind down for sleeping", "intent": "sleep_aid"}
+{"text": "help me doze off quickly", "intent": "sleep_aid"}
+{"text": "sleep aid for a restless night", "intent": "sleep_aid"}
+{"text": "make me drowsy for bed", "intent": "sleep_aid"}
+{"text": "lull my brain to sleep", "intent": "sleep_aid"}
+{"text": "slep aid pls cant sleeep", "intent": "sleep_aid"}
+{"text": "gentle drift off to dreamland", "intent": "sleep_aid"}
+{"text": "help me sleep, im exhausted", "intent": "sleep_aid"}
+{"text": "quiet my mind so I can sleep", "intent": "sleep_aid"}
+{"text": "deep sleep induction please", "intent": "sleep_aid"}
+{"text": "settle me down for the night", "intent": "sleep_aid"}
+{"text": "sleepy wind down before bed", "intent": "sleep_aid"}
+{"text": "help me fall asleep faster", "intent": "sleep_aid"}
+{"text": "calm bedtime for deep rest", "intent": "sleep_aid"}
+{"text": "ease into a restful sleep", "intent": "sleep_aid"}
+{"text": "need help sleeping after a long day", "intent": "sleep_aid"}
+{"text": "drift off gently to sleep", "intent": "sleep_aid"}
+{"text": "soothe me to sleep tonight", "intent": "sleep_aid"}
+{"text": "help with my insomnia", "intent": "sleep_aid"}
+{"text": "sleepy music to nod off", "intent": "sleep_aid"}
+{"text": "take me into deep slumber", "intent": "sleep_aid"}
+{"text": "bedtime sleep aid for relaxation", "intent": "sleep_aid"}
+{"text": "help me sleep like a baby", "intent": "sleep_aid"}
+{"text": "fall asleep to soft tones", "intent": "sleep_aid"}
+{"text": "wind down my body for sleep", "intent": "sleep_aid"}
+{"text": "need to knock out for a nap", "intent": "sleep_aid"}
+{"text": "gentle sleep aid for night time", "intent": "sleep_aid"}
+{"text": "ease my tired mind into sleep", "intent": "sleep_aid"}
+{"text": "help me sleep without waking up", "intent": "sleep_aid"}
+{"text": "drowsy and ready, put me to sleep", "intent": "sleep_aid"}
+{"text": "deep rest and sleep please", "intent": "sleep_aid"}
+{"text": "lull me into peaceful sleep", "intent": "sleep_aid"}

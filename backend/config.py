@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 30
     database_url: str = "sqlite+aiosqlite:///./score.db"
 
-    hf_model_id: str = "Qwen/Qwen3.5-9B-Instruct"
+    hf_model_id: str = "Qwen/Qwen3-8B"
     quantization: Literal["8bit", "4bit", "none"] = "8bit"
     llm_max_new_tokens: int = 2048
     llm_temperature: float = 0.6

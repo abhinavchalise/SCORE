@@ -76,16 +76,16 @@ async def list_library(
         data={
             "tracks": [
                 {
-                    "id": t.id,
-                    "file_path": t.file_path,
-                    "filename": t.filename,
-                    "format": t.format,
-                    "duration_sec": t.duration_sec,
-                    "bpm": t.bpm,
-                    "key_signature": t.key_signature,
-                    "analyzed_at": t.analyzed_at.isoformat() if t.analyzed_at else None,
+                    "id": track.id,
+                    "file_path": track.file_path,
+                    "filename": track.filename,
+                    "format": track.format,
+                    "duration_sec": track.duration_sec,
+                    "bpm": track.bpm,
+                    "key_signature": track.key_signature,
+                    "analyzed_at": track.analyzed_at.isoformat() if track.analyzed_at else None,
                 }
-                for t in tracks
+                for track in tracks
             ],
         },
     )
