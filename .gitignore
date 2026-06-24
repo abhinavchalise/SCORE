@@ -17,6 +17,13 @@ venv/
 .venv/
 *.egg-info/
 
+# Testing
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+
 # Node / Next.js
 node_modules/
 .next/
