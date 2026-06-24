@@ -1,6 +1,5 @@
 import hashlib
 from datetime import datetime, timezone
-from typing import List, Optional
 
 from sqlalchemy import func, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,22 +39,22 @@ async def create_user(
     return user
 
 
-async def get_user_by_email(db: AsyncSession, email: str) -> Optional[User]:
+async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
     result = await db.execute(select(User).where(User.email == email))
     return result.scalar_one_or_none()
 
 
-async def get_user_by_id(db: AsyncSession, user_id: int) -> Optional[User]:
+async def get_user_by_id(db: AsyncSession, user_id: int) -> User | None:
     result = await db.execute(select(User).where(User.id == user_id))
     return result.scalar_one_or_none()
 
 
-async def get_user_by_username(db: AsyncSession, username: str) -> Optional[User]:
+async def get_user_by_username(db: AsyncSession, username: str) -> User | None:
     result = await db.execute(select(User).where(User.username == username))
     return result.scalar_one_or_none()
 
 
-async def update_user_last_active(db: AsyncSession, user_id: int) -> Optional[User]:
+async def update_user_last_active(db: AsyncSession, user_id: int) -> User | None:
     user = await get_user_by_id(db, user_id)
     if user:
         user.last_active = datetime.now(timezone.utc)
@@ -69,7 +68,7 @@ async def create_session(
     intent: str,
     schedule: str,
     duration_sec: int,
-    user_id: Optional[int] = None,
+    user_id: int | None = None,
 ) -> Session:
     session = Session(
         user_id=user_id,
@@ -83,16 +82,37 @@ async def create_session(
     return session
 
 
+async def end_session(
+    db: AsyncSession,
+    session_id: int,
+    completion_pct: float,
+) -> Session | None:
+    session = await db.get(Session, session_id)
+    if session is None:
+        return None
+    session.ended_at = datetime.now(timezone.utc)
+    db.add(
+        FeedbackEvent(
+            session_id=session_id,
+            kind="completion",
+            payload={COMPLETION_PCT_KEY: completion_pct},
+        )
+    )
+    await db.commit()
+    await db.refresh(session)
+    return session
+
+
 async def create_track(
     db: AsyncSession,
     file_path: str,
     filename: str,
-    format: Optional[str] = None,
-    duration_sec: Optional[float] = None,
-    bpm: Optional[float] = None,
-    key_signature: Optional[str] = None,
-    tags: Optional[str] = None,
-    analyzed_at: Optional[datetime] = None,
+    format: str | None = None,
+    duration_sec: float | None = None,
+    bpm: float | None = None,
+    key_signature: str | None = None,
+    tags: str | None = None,
+    analyzed_at: datetime | None = None,
 ) -> Library:
     track = Library(
         file_path=file_path,
@@ -110,23 +130,23 @@ async def create_track(
     return track
 
 
-async def get_track_by_id(db: AsyncSession, track_id: int) -> Optional[Library]:
+async def get_track_by_id(db: AsyncSession, track_id: int) -> Library | None:
     result = await db.execute(select(Library).where(Library.id == track_id))
     return result.scalar_one_or_none()
 
 
-async def get_track_by_path(db: AsyncSession, file_path: str) -> Optional[Library]:
+async def get_track_by_path(db: AsyncSession, file_path: str) -> Library | None:
     result = await db.execute(select(Library).where(Library.file_path == file_path))
     return result.scalar_one_or_none()
 
 
 async def list_tracks(
     db: AsyncSession,
-    bpm_min: Optional[float] = None,
-    bpm_max: Optional[float] = None,
-    format: Optional[str] = None,
+    bpm_min: float | None = None,
+    bpm_max: float | None = None,
+    format: str | None = None,
     limit: int = 50,
-) -> List[Library]:
+) -> list[Library]:
     query = select(Library)
     if bpm_min is not None:
         query = query.where(Library.bpm >= bpm_min)
@@ -166,7 +186,7 @@ async def insert_example(db: AsyncSession, entry: ExampleBankEntryCreate) -> Exa
     return row
 
 
-async def fetch_example_bank(db: AsyncSession, intent: str, k: int = 3) -> List[ExampleBankEntry]:
+async def fetch_example_bank(db: AsyncSession, intent: str, k: int = 3) -> list[ExampleBankEntry]:
     result = await db.execute(
         select(ExampleBankEntry)
         .where(
@@ -197,7 +217,7 @@ async def insert_prompt_version(db: AsyncSession, version: PromptVersionCreate) 
     return row
 
 
-async def active_prompt_version(db: AsyncSession, intent: str) -> Optional[PromptVersion]:
+async def active_prompt_version(db: AsyncSession, intent: str) -> PromptVersion | None:
     result = await db.execute(
         select(PromptVersion)
         .where(PromptVersion.intent == intent, PromptVersion.active.is_(True))
@@ -206,7 +226,7 @@ async def active_prompt_version(db: AsyncSession, intent: str) -> Optional[Promp
     return result.scalars().first()
 
 
-async def activate_prompt_version(db: AsyncSession, version_id: int) -> Optional[PromptVersion]:
+async def activate_prompt_version(db: AsyncSession, version_id: int) -> PromptVersion | None:
     version = await db.get(PromptVersion, version_id)
     if version is None:
         return None
@@ -224,7 +244,7 @@ async def activate_prompt_version(db: AsyncSession, version_id: int) -> Optional
 async def session_completion_rate(
     db: AsyncSession,
     intent: str,
-    since: Optional[datetime] = None,
+    since: datetime | None = None,
 ) -> float:
     query = (
         select(FeedbackEvent.payload)
@@ -243,7 +263,7 @@ async def session_completion_rate(
     return sum(values) / len(values) if values else 0.0
 
 
-async def fallback_rate(db: AsyncSession, since: Optional[datetime] = None) -> float:
+async def fallback_rate(db: AsyncSession, since: datetime | None = None) -> float:
     total_query = select(func.count()).select_from(Session)
     fallback_query = (
         select(func.count()).select_from(Session).where(Session.used_fallback.is_(True))

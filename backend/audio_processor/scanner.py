@@ -1,10 +1,9 @@
 import os
-from typing import List
 
 SUPPORTED_FORMATS = {"wav", "flac", "mp3"}
 
 
-def scan_directory(directory_path: str) -> List[dict]:
+def scan_directory(directory_path: str) -> list[dict]:
     if not os.path.isdir(directory_path):
         raise ValueError(f"Directory does not exist: {directory_path}")
 

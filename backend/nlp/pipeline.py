@@ -37,7 +37,10 @@ async def _call_llm(prompt: str) -> dict:
     return await llm_engine.generate_constrained(prompt)
 
 
-async def run_pipeline(raw_input: str, db: AsyncSession) -> PipelineResult:
+async def run_pipeline(
+    raw_input: str, db: AsyncSession, duration_minutes: int = 25
+) -> PipelineResult:
+    duration_sec = duration_minutes * 60
     with stage("nlp.sanitize"):
         text = sanitize(raw_input)
     with stage("nlp.classify"):
@@ -50,7 +53,9 @@ async def run_pipeline(raw_input: str, db: AsyncSession) -> PipelineResult:
         with stage("nlp.retrieve"):
             examples = await fetch_examples(db, intent, k=3)
         with stage("nlp.render"):
-            prompt, version = await render_prompt(intent, text, examples, db)
+            prompt, version = await render_prompt(
+                intent, text, examples, db, duration_sec=duration_sec
+            )
             version_id = version.id
         with stage("nlp.llm"):
             raw = await _call_llm(prompt)
@@ -62,7 +67,7 @@ async def run_pipeline(raw_input: str, db: AsyncSession) -> PipelineResult:
 
     if used_fallback:
         counter("nlp.fallback")
-        schedule = fallback_for(intent).model_dump()
+        schedule = fallback_for(intent, duration_sec).model_dump()
 
     return PipelineResult(
         schedule=schedule,

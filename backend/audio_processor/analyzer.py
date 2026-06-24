@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 import librosa
 import numpy as np
@@ -27,7 +26,7 @@ def analyze_track(file_path: str) -> dict:
     }
 
 
-def _extract_bpm(audio_samples: np.ndarray, sample_rate: int) -> Optional[float]:
+def _extract_bpm(audio_samples: np.ndarray, sample_rate: int) -> float | None:
     try:
         tempo, _ = librosa.beat.beat_track(y=audio_samples, sr=sample_rate)
         # librosa >= 0.10 returns an array
@@ -39,7 +38,7 @@ def _extract_bpm(audio_samples: np.ndarray, sample_rate: int) -> Optional[float]
         return None
 
 
-def _extract_key(audio_samples: np.ndarray, sample_rate: int) -> Optional[str]:
+def _extract_key(audio_samples: np.ndarray, sample_rate: int) -> str | None:
     try:
         chroma = librosa.feature.chroma_cqt(y=audio_samples, sr=sample_rate)
         chroma_mean = np.mean(chroma, axis=1)

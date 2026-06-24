@@ -49,9 +49,10 @@ async def get_current_user(
     )
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
-        user_id: int = payload.get("sub")
-        if user_id is None:
+        sub = payload.get("sub")
+        if sub is None:
             raise credentials_exception
+        user_id = int(sub)
     except JWTError:
         raise credentials_exception
 
@@ -77,7 +78,7 @@ async def register(req: UserCreate, db: AsyncSession = Depends(get_db)) -> APIRe
         hashed_password=hashed,
     )
 
-    token = create_access_token({"sub": user.id})
+    token = create_access_token({"sub": str(user.id)})
     return APIResponse(
         success=True,
         message="User registered",
@@ -100,7 +101,7 @@ async def login(req: LoginRequest, db: AsyncSession = Depends(get_db)) -> APIRes
 
     await update_user_last_active(db, user.id)
 
-    token = create_access_token({"sub": user.id})
+    token = create_access_token({"sub": str(user.id)})
     return APIResponse(
         success=True,
         message="Login successful",

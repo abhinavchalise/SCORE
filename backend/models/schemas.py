@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 class APIResponse(BaseModel):
     success: bool
     message: str
-    data: Optional[Dict[str, Any]] = None
+    data: dict[str, Any] | None = None
 
 
 class UserBase(BaseModel):
@@ -40,7 +40,7 @@ class ModulationStep(BaseModel):
 class ModulationSchedule(BaseModel):
     intent: str
     total_duration_sec: int = Field(..., ge=60, le=7200)
-    steps: List[ModulationStep] = Field(..., min_length=1, max_length=20)
+    steps: list[ModulationStep] = Field(..., min_length=1, max_length=20)
 
 
 class SessionStartRequest(BaseModel):
@@ -63,7 +63,7 @@ FeedbackKind = Literal["skip", "edit", "rating", "completion"]
 class FeedbackEventCreate(BaseModel):
     session_id: int
     kind: FeedbackKind
-    payload: Dict[str, Any] = Field(default_factory=dict)
+    payload: dict[str, Any] = Field(default_factory=dict)
 
 
 class FeedbackEventRead(BaseModel):
@@ -72,16 +72,16 @@ class FeedbackEventRead(BaseModel):
     id: int
     session_id: int
     kind: str
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
     at: datetime
 
 
 class ExampleBankEntryCreate(BaseModel):
     intent: str
-    schedule_json: Dict[str, Any]
+    schedule_json: dict[str, Any]
     rating: int = Field(..., ge=1, le=5)
     completion_pct: float = Field(..., ge=0, le=100)
-    embedding: List[float]
+    embedding: list[float]
 
 
 class ExampleBankEntryRead(ExampleBankEntryCreate):

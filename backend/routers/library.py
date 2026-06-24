@@ -1,7 +1,6 @@
 import asyncio
 import os
 from datetime import datetime, timezone
-from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import FileResponse
@@ -63,9 +62,9 @@ async def scan_library(req: LibraryScanRequest, db: AsyncSession = Depends(get_d
 
 @router.get("/", response_model=APIResponse)
 async def list_library(
-    bpm_min: Optional[float] = Query(None, ge=20, le=300),
-    bpm_max: Optional[float] = Query(None, ge=20, le=300),
-    format: Optional[str] = Query(None),
+    bpm_min: float | None = Query(None, ge=20, le=300),
+    bpm_max: float | None = Query(None, ge=20, le=300),
+    format: str | None = Query(None),
     limit: int = Query(50, ge=1, le=200),
     db: AsyncSession = Depends(get_db),
 ) -> APIResponse:

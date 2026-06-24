@@ -6,6 +6,7 @@ from backend.db.queries import (
     append_feedback,
     create_session,
     create_user,
+    end_session,
     fallback_rate,
     fetch_example_bank,
     get_user_by_email,
@@ -35,6 +36,20 @@ async def test_append_feedback(db):
     assert event.id is not None
     assert event.kind == "rating"
     assert event.payload == {"value": 5}
+
+
+async def test_end_session_sets_ended_at_and_writes_completion_row(db):
+    session = await create_session(db, intent="deep_focus", schedule="{}", duration_sec=1500)
+
+    ended = await end_session(db, session.id, completion_pct=87.5)
+
+    assert ended is not None
+    assert ended.ended_at is not None
+    assert await session_completion_rate(db, "deep_focus") == 87.5
+
+
+async def test_end_session_missing_session_returns_none(db):
+    assert await end_session(db, 999, completion_pct=50.0) is None
 
 
 async def test_insert_and_fetch_example_bank_filters_by_quality(db):
