@@ -1,0 +1,68 @@
+:root {
+  --bg: #0f0f0f;
+  --surface: #181818;
+  --border: #2a2a2a;
+  --text: #e6e6e6;
+  --text-dim: #888;
+  --accent: #7aa7ff;
+  --warn: #ffb86b;
+  --radius: 0.75rem;
+  --radius-sm: 0.375rem;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.score-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.score-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+}
+
+.score-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.score-btn:disabled {
+  opacity: 0.5;
+}
+
+.score-btn-accent {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.score-btn-warn {
+  background: var(--warn);
+  border-color: var(--warn);
+  color: var(--bg);
+}
+
+.score-input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+}
+
+.score-link {
+  color: var(--accent);
+}
+
+.score-dim {
+  color: var(--text-dim);
+}
+
+.score-warn {
+  color: var(--warn);
+}
