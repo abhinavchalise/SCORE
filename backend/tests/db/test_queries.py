@@ -12,6 +12,7 @@ from backend.db.queries import (
     get_user_by_email,
     insert_example,
     insert_prompt_version,
+    recent_sessions,
     session_completion_rate,
 )
 from backend.models.orm import ExampleBankEntry
@@ -148,6 +149,20 @@ async def test_fallback_rate_counts_fallback_sessions(db):
 
     rate = await fallback_rate(db)
     assert rate == 0.5
+
+
+async def test_recent_sessions_returns_completion_and_rating(db):
+    session = await create_session(db, intent="calm", schedule='{"steps": []}', duration_sec=600)
+    await append_feedback(db, session.id, "completion", {"pct": 88.0})
+    await append_feedback(db, session.id, "rating", {"value": 4})
+
+    rows = await recent_sessions(db, limit=10)
+
+    assert len(rows) == 1
+    assert rows[0]["intent"] == "calm"
+    assert rows[0]["completion_pct"] == 88.0
+    assert rows[0]["rating"] == 4
+    assert rows[0]["schedule"] == {"steps": []}
 
 
 async def test_example_bank_fetch_under_50ms_at_10k_rows(db):

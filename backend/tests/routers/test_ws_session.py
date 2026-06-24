@@ -5,10 +5,12 @@ pytest.importorskip("fastapi")
 from fastapi import WebSocketDisconnect
 from sqlalchemy import func, select
 
-from backend.models.orm import FeedbackEvent
+from backend.models.orm import ExampleBankEntry, FeedbackEvent
+from backend.nlp import example_bank
 from backend.nlp.pipeline import PipelineResult
 from backend.routers import sessions as sessions_module
 from backend.routers.sessions import session_ws
+from backend.session_state import SessionState
 
 _SCHEDULE = {
     "intent": "deep_focus",
@@ -94,3 +96,44 @@ async def test_ws_disconnect_still_writes_completion(db, stub_pipeline):
     assert ws.sent[0]["type"] == "schedule"
     assert all(message["type"] != "ended" for message in ws.sent)
     assert await _completion_row_count(db) == 1
+
+
+async def _example_bank_count(db) -> int:
+    result = await db.execute(select(func.count()).select_from(ExampleBankEntry))
+    return result.scalar_one()
+
+
+async def test_ws_qualifying_session_inserts_example(db, stub_pipeline, monkeypatch):
+    monkeypatch.setattr(example_bank, "embed_text", lambda text: [0.1, 0.2, 0.3])
+    monkeypatch.setattr(SessionState, "completion_pct", lambda self: 90.0)
+
+    ws = FakeWebSocket(
+        [
+            {"intent": "deep focus please", "duration_minutes": 25},
+            {"type": "control", "action": "stop"},
+            {"type": "feedback", "kind": "rating", "payload": {"value": 5}},
+        ]
+    )
+
+    await session_ws(ws, db)
+
+    assert ws.sent[-1]["type"] == "ended"
+    assert await _example_bank_count(db) == 1
+
+
+async def test_ws_edited_session_skips_example(db, stub_pipeline, monkeypatch):
+    monkeypatch.setattr(example_bank, "embed_text", lambda text: [0.1, 0.2, 0.3])
+    monkeypatch.setattr(SessionState, "completion_pct", lambda self: 90.0)
+
+    ws = FakeWebSocket(
+        [
+            {"intent": "deep focus please", "duration_minutes": 25},
+            {"type": "feedback", "kind": "edit", "payload": {"field": "binaural_freq"}},
+            {"type": "control", "action": "stop"},
+            {"type": "feedback", "kind": "rating", "payload": {"value": 5}},
+        ]
+    )
+
+    await session_ws(ws, db)
+
+    assert await _example_bank_count(db) == 0

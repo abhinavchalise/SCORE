@@ -1,4 +1,5 @@
 import hashlib
+import json
 from datetime import datetime, timezone
 
 from sqlalchemy import func, update
@@ -18,6 +19,7 @@ from backend.models.schemas import ExampleBankEntryCreate, PromptVersionCreate
 EXAMPLE_MIN_RATING = 4
 EXAMPLE_MIN_COMPLETION_PCT = 80.0
 COMPLETION_PCT_KEY = "pct"
+RATING_VALUE_KEY = "value"
 
 
 async def create_user(
@@ -101,6 +103,39 @@ async def end_session(
     await db.commit()
     await db.refresh(session)
     return session
+
+
+async def recent_sessions(db: AsyncSession, limit: int = 20) -> list[dict]:
+    result = await db.execute(select(Session).order_by(Session.started_at.desc()).limit(limit))
+    sessions = result.scalars().all()
+    if not sessions:
+        return []
+
+    session_ids = [session.id for session in sessions]
+    events = await db.execute(
+        select(FeedbackEvent).where(FeedbackEvent.session_id.in_(session_ids))
+    )
+    completion_by_session: dict[int, float] = {}
+    rating_by_session: dict[int, int] = {}
+    for event in events.scalars().all():
+        if not isinstance(event.payload, dict):
+            continue
+        if event.kind == "completion":
+            completion_by_session[event.session_id] = event.payload.get(COMPLETION_PCT_KEY)
+        elif event.kind == "rating":
+            rating_by_session[event.session_id] = event.payload.get(RATING_VALUE_KEY)
+
+    return [
+        {
+            "id": session.id,
+            "intent": session.intent,
+            "schedule": json.loads(session.schedule) if session.schedule else None,
+            "completion_pct": completion_by_session.get(session.id),
+            "rating": rating_by_session.get(session.id),
+            "started_at": session.started_at.isoformat() if session.started_at else None,
+        }
+        for session in sessions
+    ]
 
 
 async def create_track(
