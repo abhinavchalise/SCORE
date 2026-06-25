@@ -40,7 +40,7 @@ class ModulationStep(BaseModel):
 class ModulationSchedule(BaseModel):
     intent: str
     total_duration_sec: int = Field(..., ge=60, le=7200)
-    steps: list[ModulationStep] = Field(..., min_length=1, max_length=20)
+    steps: list[ModulationStep] = Field(..., min_length=1, max_length=8)
 
 
 class SessionStartRequest(BaseModel):

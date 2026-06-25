@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     hf_model_id: str = "Qwen/Qwen3-8B"
     quantization: Literal["8bit", "4bit", "none"] = "8bit"
-    llm_max_new_tokens: int = 2048
+    llm_max_new_tokens: int = 640
     llm_temperature: float = 0.6
     llm_top_p: float = 0.95
     llm_timeout_seconds: int = 15

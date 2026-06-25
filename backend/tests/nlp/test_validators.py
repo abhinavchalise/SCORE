@@ -1,4 +1,4 @@
-from backend.nlp.validators import validate_schedule
+from backend.nlp.validators import clamp_schedule, validate_schedule
 
 
 def _step(timestamp_sec, target_bpm, binaural_freq, ramp_duration_sec):
@@ -42,3 +42,15 @@ def test_smoothness_violation_is_flagged():
     ok, schedule, reason = validate_schedule(raw)
     assert ok is False
     assert reason == "smoothness_invalid"
+
+
+def test_clamp_repairs_range_and_smoothness():
+    steps = [_step(0, 70, 50.0, 0), _step(300, 400, 5.0, 0)]
+    assert validate_schedule(_schedule(steps))[0] is False
+
+    ok, schedule, reason = validate_schedule(clamp_schedule(_schedule(steps)))
+    assert ok is True
+    assert reason is None
+    assert schedule["steps"][0]["binaural_freq"] == 40.0
+    assert schedule["steps"][1]["target_bpm"] == 200
+    assert schedule["steps"][1]["ramp_duration_sec"] > 0

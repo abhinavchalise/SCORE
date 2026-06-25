@@ -8,7 +8,7 @@ from backend.nlp.fallback import fallback_for
 from backend.nlp.intent_classifier import classify
 from backend.nlp.prompt_templates import render_prompt
 from backend.nlp.sanitize import sanitize
-from backend.nlp.validators import validate_schedule
+from backend.nlp.validators import clamp_schedule, validate_schedule
 
 _STAGES = (
     "nlp.sanitize",
@@ -60,7 +60,7 @@ async def run_pipeline(
         with stage("nlp.llm"):
             raw = await _call_llm(prompt)
         with stage("nlp.validate"):
-            valid, schedule, _reason = validate_schedule(raw)
+            valid, schedule, _reason = validate_schedule(clamp_schedule(raw))
         used_fallback = not valid
     except Exception:
         used_fallback = True

@@ -44,3 +44,42 @@ def _check_smoothness(schedule: ModulationSchedule) -> str | None:
             elif delta / seconds > SMOOTHNESS_LIMIT_FRACTION * width:
                 return field
     return None
+
+
+_FIELD_BOUNDS = {
+    "timestamp_sec": (0.0, 7200.0),
+    "target_bpm": (40, 200),
+    "binaural_freq": (0.5, 40.0),
+    "ramp_duration_sec": (0.0, 300.0),
+}
+_TOTAL_DURATION_BOUNDS = (60, 7200)
+_SMOOTHNESS_MARGIN = 1.02
+
+
+def _clamp(value, low, high):
+    return max(low, min(high, value))
+
+
+def clamp_schedule(raw: dict) -> dict:
+    if not isinstance(raw, dict):
+        return raw
+
+    raw["total_duration_sec"] = int(
+        _clamp(raw.get("total_duration_sec", _TOTAL_DURATION_BOUNDS[0]), *_TOTAL_DURATION_BOUNDS)
+    )
+
+    steps = [step for step in raw.get("steps", []) if isinstance(step, dict)]
+    for step in steps:
+        for field, (low, high) in _FIELD_BOUNDS.items():
+            if isinstance(step.get(field), (int, float)):
+                step[field] = _clamp(step[field], low, high)
+
+    for previous, current in zip(steps, steps[1:]):
+        needed = 0.0
+        for field, width in _FIELD_RANGE_WIDTHS.items():
+            delta = abs(current.get(field, 0) - previous.get(field, 0))
+            if delta > 0:
+                needed = max(needed, delta / (SMOOTHNESS_LIMIT_FRACTION * width))
+        if needed > current.get("ramp_duration_sec", 0):
+            current["ramp_duration_sec"] = _clamp(needed * _SMOOTHNESS_MARGIN, 0.0, 300.0)
+    return raw

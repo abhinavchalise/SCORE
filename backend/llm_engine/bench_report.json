@@ -1,0 +1,260 @@
+{
+  "count": 50,
+  "schema_validity_rate": 0.22,
+  "full_gen_p50_sec": 17.624320520000765,
+  "full_gen_p95_sec": 18.557023591199865,
+  "peak_gpu_mb": 7299.728515625,
+  "ttft": "not measured; full-generation latency only",
+  "runs": [
+    {
+      "intent": "help me focus deeply",
+      "latency_sec": 27.712356454001565,
+      "valid": false
+    },
+    {
+      "intent": "I need to lock in for a hard exam",
+      "latency_sec": 17.336769880999782,
+      "valid": false
+    },
+    {
+      "intent": "deep work session please",
+      "latency_sec": 18.741174509999837,
+      "valid": false
+    },
+    {
+      "intent": "gotta grind on this coding problem",
+      "latency_sec": 17.67753789100243,
+      "valid": false
+    },
+    {
+      "intent": "intense concentration for the next two hours",
+      "latency_sec": 17.974339552001766,
+      "valid": false
+    },
+    {
+      "intent": "studying for finals, need zero distractions",
+      "latency_sec": 17.78593019499749,
+      "valid": false
+    },
+    {
+      "intent": "put me in the zone for math",
+      "latency_sec": 17.726331186000607,
+      "valid": false
+    },
+    {
+      "intent": "focuss really hard pls",
+      "latency_sec": 17.748009055001603,
+      "valid": false
+    },
+    {
+      "intent": "I have to write my thesis chapter now",
+      "latency_sec": 11.89169879399924,
+      "valid": false
+    },
+    {
+      "intent": "crunch mode, big deadline tomorrow",
+      "latency_sec": 18.331950245999906,
+      "valid": false
+    },
+    {
+      "intent": "need laser focus on debugging",
+      "latency_sec": 7.7660389249977015,
+      "valid": true
+    },
+    {
+      "intent": "deep focus for reading dense papers",
+      "latency_sec": 16.86025924400019,
+      "valid": false
+    },
+    {
+      "intent": "lock me in, no interruptions",
+      "latency_sec": 16.813137365003058,
+      "valid": false
+    },
+    {
+      "intent": "heads down work for the report",
+      "latency_sec": 12.829219913000998,
+      "valid": true
+    },
+    {
+      "intent": "maximum concentration mode",
+      "latency_sec": 17.288777102003223,
+      "valid": true
+    },
+    {
+      "intent": "I'm cramming, make it intense",
+      "latency_sec": 16.986885919002816,
+      "valid": false
+    },
+    {
+      "intent": "flow state for serious coding",
+      "latency_sec": 17.469841998001357,
+      "valid": false
+    },
+    {
+      "intent": "need to power through this whole problem set",
+      "latency_sec": 17.424532844001078,
+      "valid": false
+    },
+    {
+      "intent": "tunnel vision on the spreadsheet",
+      "latency_sec": 17.525303244001407,
+      "valid": false
+    },
+    {
+      "intent": "hardcore study session, lets go",
+      "latency_sec": 17.610802823000995,
+      "valid": false
+    },
+    {
+      "intent": "concentrate fully on the contract review",
+      "latency_sec": 17.968535643001815,
+      "valid": false
+    },
+    {
+      "intent": "deeep focus, exam in 3 hrs!!!",
+      "latency_sec": 17.73561539000002,
+      "valid": false
+    },
+    {
+      "intent": "I must finish this proof, no breaks",
+      "latency_sec": 17.33827883900085,
+      "valid": false
+    },
+    {
+      "intent": "give me beta waves for tough analysis",
+      "latency_sec": 19.008652164000523,
+      "valid": false
+    },
+    {
+      "intent": "need to memorize a ton fast",
+      "latency_sec": 17.6560930989981,
+      "valid": false
+    },
+    {
+      "intent": "serious focus for the leetcode grind",
+      "latency_sec": 17.804700823999156,
+      "valid": false
+    },
+    {
+      "intent": "block everything out, writing code",
+      "latency_sec": 17.288534662999155,
+      "valid": true
+    },
+    {
+      "intent": "intense deep work for research",
+      "latency_sec": 17.90185729100267,
+      "valid": false
+    },
+    {
+      "intent": "help me concentrate on studying chemistry",
+      "latency_sec": 17.96525694600132,
+      "valid": false
+    },
+    {
+      "intent": "need to be fully dialed in",
+      "latency_sec": 17.57704140900023,
+      "valid": true
+    },
+    {
+      "intent": "deadline panic, focus me up",
+      "latency_sec": 17.6136747620003,
+      "valid": false
+    },
+    {
+      "intent": "zero distraction zone for essays",
+      "latency_sec": 17.06335874800061,
+      "valid": true
+    },
+    {
+      "intent": "focus hard, big presentation prep",
+      "latency_sec": 17.967766993002442,
+      "valid": false
+    },
+    {
+      "intent": "I need to absorb this textbook chapter",
+      "latency_sec": 17.775009867000335,
+      "valid": false
+    },
+    {
+      "intent": "put my brain in overdrive for work",
+      "latency_sec": 17.89748303200031,
+      "valid": false
+    },
+    {
+      "intent": "concentrate on the financial model",
+      "latency_sec": 17.836863524000364,
+      "valid": false
+    },
+    {
+      "intent": "need to stay sharp for hours of coding",
+      "latency_sec": 17.84175678000247,
+      "valid": false
+    },
+    {
+      "intent": "study mode maximum intensity",
+      "latency_sec": 17.78353931899983,
+      "valid": false
+    },
+    {
+      "intent": "lock in for the bar exam prep",
+      "latency_sec": 17.16203607100033,
+      "valid": true
+    },
+    {
+      "intent": "help me do deep analytical thinking",
+      "latency_sec": 17.765811562996532,
+      "valid": false
+    },
+    {
+      "intent": "need unbroken focus on the dataset",
+      "latency_sec": 17.10292313100217,
+      "valid": false
+    },
+    {
+      "intent": "grinding through documentation, focus me",
+      "latency_sec": 17.059833890001755,
+      "valid": false
+    },
+    {
+      "intent": "intense focus for solving equations",
+      "latency_sec": 16.26488270000118,
+      "valid": true
+    },
+    {
+      "intent": "I have to nail this take home assignment",
+      "latency_sec": 13.02748617999896,
+      "valid": true
+    },
+    {
+      "intent": "brain on full power for studying",
+      "latency_sec": 16.77641360800044,
+      "valid": false
+    },
+    {
+      "intent": "need to think really hard right now",
+      "latency_sec": 18.102466066997295,
+      "valid": false
+    },
+    {
+      "intent": "deep concentration for legal drafting",
+      "latency_sec": 16.970425010000326,
+      "valid": true
+    },
+    {
+      "intent": "focus session for the whole afternoon",
+      "latency_sec": 17.86072249800054,
+      "valid": false
+    },
+    {
+      "intent": "get me in deep work for the algorithm",
+      "latency_sec": 17.63496627800123,
+      "valid": false
+    },
+    {
+      "intent": "heavy focus, no phone, just the code",
+      "latency_sec": 17.3818426550024,
+      "valid": true
+    }
+  ]
+}

@@ -1,4 +1,6 @@
 import asyncio
+import functools
+import json
 import logging
 import time
 
@@ -45,15 +47,24 @@ class LLMEngine:
         import outlines
 
         constrained_model = outlines.models.Transformers(self.model, self.tokenizer)
-        return outlines.generate.json(constrained_model, ModulationSchedule)
+        sampler = outlines.samplers.multinomial(
+            temperature=settings.llm_temperature, top_p=settings.llm_top_p
+        )
+        return outlines.generate.json(
+            constrained_model, ModulationSchedule, sampler=sampler, whitespace_pattern=""
+        )
 
     async def generate_constrained(self, prompt: str) -> dict:
         if self._constrained_generator is None:
             self._constrained_generator = self._build_constrained_generator()
+            self._constrained_generator.format_sequence = lambda text: text
 
         loop = asyncio.get_running_loop()
-        schedule = await loop.run_in_executor(None, self._constrained_generator, prompt)
-        return schedule.model_dump()
+        generate = functools.partial(
+            self._constrained_generator, prompt, max_tokens=settings.llm_max_new_tokens
+        )
+        raw = await loop.run_in_executor(None, generate)
+        return json.loads(raw)
 
 
 llm_engine = LLMEngine()
