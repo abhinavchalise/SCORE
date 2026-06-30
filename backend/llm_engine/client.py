@@ -67,4 +67,12 @@ class LLMEngine:
         return json.loads(raw)
 
 
-llm_engine = LLMEngine()
+def _select_engine():
+    if settings.llm_backend == "llamacpp":
+        from backend.llm_engine.llamacpp_client import LlamaCppEngine
+
+        return LlamaCppEngine()
+    return LLMEngine()
+
+
+llm_engine = _select_engine()

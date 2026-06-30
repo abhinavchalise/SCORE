@@ -31,5 +31,11 @@ class Settings(BaseSettings):
     llm_top_p: float = 0.95
     llm_timeout_seconds: int = 15
 
+    llm_backend: Literal["transformers", "llamacpp"] = "transformers"
+    gguf_model_path: str = ""
+    gguf_quant: str = "Q8_0"
+    n_gpu_layers: int = -1
+    n_ctx: int = 4096
+
 
 settings = Settings()

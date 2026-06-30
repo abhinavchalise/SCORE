@@ -29,3 +29,9 @@ def counter(name: str, by: int = 1):
 
 def durations(name: str) -> list[float]:
     return list(_durations[name])
+
+
+def reset_log() -> None:
+    _durations.clear()
+    _counts.clear()
+    _log_path.write_text("")

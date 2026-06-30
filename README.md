@@ -58,7 +58,8 @@ flowchart LR
 | Fixed set of session styles | Canonical labels keep accuracy meaningful and give the fallback concrete targets | Open-set classification by similarity |
 | Retrieval before fine-tuning | Cheapest signal that compounds with use: no training cost, no GPU, improvement at generation time | LoRA fine-tuning (data to be added) |
 | Constrained decoding | Bounds the JSON structure as the model generates, removing the malformed-output retry path | Generate then validate-and-retry (adds a latency tail and a failure path) |
-| 8-bit quantization on the HuggingFace stack | Output is JSON, so quantization noise becomes a validation error, not slightly worse meaning since the same stack hosts fine-tuning later |
+| llama.cpp GGUF for serving, HuggingFace for training | llama.cpp Q8_0 serving cut end-to-end latency from 34 s to 15 s on a 12 GB card. The HuggingFace stack with bitsandbytes stays the QLoRA fine-tuning home. | One runtime for both (rejected: serving speed and training tooling pull in different directions) |
+| Q8_0 quant for serving | Output is JSON, so quantization noise becomes a validation error rather than slightly worse meaning. High precision protects schema fidelity, the critical path. | Q4 (rejected for now: faster but lower raw validity, traded against fidelity) |
 
 ---
 
@@ -69,6 +70,17 @@ The focus-first design is enforced in code, not left to the model:
 - **Smooth transitions.** No parameter jumps more than 20% of its range per second
 - **You stay in control.** Sliders override the model in real time, and each edit becomes a feedback signal.
 - **Instant stop.** A keyboard shortcut and a large button stop audio with no confirmation dialog, so sensory overwhelm is never trapped behind a multi-step flow.
+
+---
+
+## Benchmarks
+
+Measured on an RTX 3060 (12 GB), Qwen3-8B.
+
+- Serving on llama.cpp with a GGUF `Q8_0` model cut end-to-end latency from 34.3 s (HuggingFace 8-bit) to 15.2 s P50, and peak GPU from 10.2 GB to 8.7 GB.
+- Every delivered schedule is valid: constrained decoding fixes the JSON structure and a deterministic clamp pins numeric ranges and smoothing, so schedules reach the player with zero retry (0% fallback over a 30-session run, both backends).
+- Non-LLM pipeline stages run far under budget: intent classify 4 ms, render + retrieval under 2 ms, validation under 1 ms (P50).
+- The local 8B model still has a latency at ~12.6 s P50 generation. Reaching sub-3 s needs better optimization.
 
 ---
 
@@ -111,7 +123,7 @@ Configuration lives in `backend/config.py`, overridable via a project-root `.env
 
 **Backend:** Python 3.10+, FastAPI, async SQLAlchemy, Pydantic, WebSocket
 
-**ML:** HuggingFace Transformers, sentence-transformers, outlines (constrained decoding), librosa. The model runs quantized with bitsandbytes (`8bit` by default, `4bit` for tighter memory), which keeps a direct path to fine-tuning on feedback data later without a second runtime.
+**ML:** llama.cpp (GGUF serving), HuggingFace Transformers, sentence-transformers, constrained decoding (GBNF on llama.cpp, outlines on the HF path), librosa. Serving runs Qwen3-8B as a GGUF `Q8_0` model on llama.cpp; the HuggingFace path with bitsandbytes (`8bit`, `4bit` for tighter memory) stays the fine-tuning home. `LLM_BACKEND` selects between them.
 
 **Storage:** SQLite by default; MySQL via Docker for development
 
@@ -120,7 +132,8 @@ Configuration lives in `backend/config.py`, overridable via a project-root `.env
 ## Known Limitations
 
 - **Single-user, local deployment by design.** No multi-tenant serving and no hosted endpoint; the on-device story is the point.
-- **Adaptation ships as retrieval first**, and the system is not yet benchmarked. Classifier retraining and preference tuning are deferred until the retrieval signal plateaus.
+- **Adaptation ships as retrieval first.** Classifier retraining and preference tuning are deferred until the retrieval signal plateaus.
+- **On-device 8B generation is the latency cost.** llama.cpp Q8_0 serving brings end-to-end P50 to ~15 s on a 12 GB card, down from ~34 s on the HuggingFace stack. Sub-3 s would need a lighter GGUF quant.
 
 ---
 

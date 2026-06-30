@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.pool import StaticPool
 
 from backend.config import settings
-from backend.latency import durations, stage
+from backend.latency import durations, reset_log, stage
 from backend.llm_engine.client import llm_engine
 from backend.models.orm import Base
 from backend.models.schemas import INTENTS
@@ -97,6 +97,7 @@ async def run_sessions(session_factory, sessions: int) -> dict:
 
 
 async def run_load(sessions: int) -> dict:
+    reset_log()
     await llm_engine.load()
     engine, session_factory = await build_session_factory()
     try:
@@ -106,12 +107,15 @@ async def run_load(sessions: int) -> dict:
 
 
 def write_summary(metrics: dict) -> None:
+    is_gguf = settings.llm_backend == "llamacpp"
+    model_id = Path(settings.gguf_model_path).name if is_gguf else settings.hf_model_id
     SUMMARY.write_text(
         json.dumps(
             {
                 "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
-                "model_id": settings.hf_model_id,
-                "quantization": settings.quantization,
+                "model_id": model_id,
+                "quantization": settings.gguf_quant if is_gguf else settings.quantization,
+                "llm_backend": settings.llm_backend,
                 "sessions": metrics["sessions"],
                 "fallback_rate": metrics["fallback_rate"],
                 "end_to_end_p50_ms": metrics["end_to_end_p50_ms"],
