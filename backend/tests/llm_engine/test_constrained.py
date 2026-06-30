@@ -23,9 +23,8 @@ _VALID_SCHEDULE = ModulationSchedule(
 
 async def test_generate_constrained_returns_validatable_dict():
     engine = LLMEngine()
-    engine._constrained_generator = (
-        lambda prompt, max_tokens=None: _VALID_SCHEDULE.model_dump_json()
-    )
+    valid_json = _VALID_SCHEDULE.model_dump_json()
+    engine._constrained_generator = lambda prompt, max_tokens=None: valid_json
 
     result = await engine.generate_constrained("help me focus deeply")
 
